@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --an-bg: #0d0d0d;
+        --an-surface: #141414;
+        --an-accent: #5be7c4;
+        --an-text: #ededed;
+        --an-muted: #a1a1a1;
+        --an-border: rgba(255, 255, 255, 0.08);
+        --an-radius: 12px;
+        --an-radius-sm: 4px;
+        --an-transition: 0.25s ease;
+        --topbar-h: 56px;
+      }
+
+      html {
+        height: 100%;
+      }
+
+      body.analytics-page {
+        margin: 0;
+        min-height: 100%;
+        min-height: 100dvh;
+        font-family: "Unbounded", system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--an-text);
+        background: var(--an-bg);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .an-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        height: var(--topbar-h);
+        padding-inline: 1.25rem;
+        border-bottom: 1px solid var(--an-border);
+        background: rgba(13, 13, 13, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .an-topbar__brand {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color var(--an-transition);
+      }
+
+      .an-topbar__brand:hover {
+        color: var(--an-accent);
+      }
+
+      .an-topbar__burger {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border: none;
+        border-radius: var(--an-radius-sm);
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        transition: background var(--an-transition), color var(--an-transition);
+      }
+
+      .an-topbar__burger:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--an-accent);
+      }
+
+      .an-topbar__burger-line {
+        display: block;
+        height: 2px;
+        width: 1.35rem;
+        margin-inline: auto;
+        background: currentColor;
+        border-radius: 1px;
+      }
+
+      .an-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem clamp(0.75rem, 2vw, 1.5rem) 2rem;
+        max-width: 1400px;
+        width: 100%;
+        margin-inline: auto;
+      }
+
+      .an-row-top {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) minmax(200px, 1.2fr) minmax(200px, 1fr);
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .an-card {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 1.1rem;
+        background: var(--an-surface);
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius);
+        transition: box-shadow var(--an-transition), border-color var(--an-transition),
+          transform var(--an-transition);
+      }
+
+      .an-card:hover {
+        border-color: rgba(91, 231, 196, 0.2);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+      }
+
+      .an-card__title {
+        margin: 0 0 0.75rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: var(--an-muted);
+        text-transform: uppercase;
+      }
+
+      .an-comments__list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .an-comment {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--an-border);
+      }
+
+      .an-comment:last-of-type {
+        border-bottom: none;
+      }
+
+      .an-comment__head {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.35rem;
+      }
+
+      .an-comment__user {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--an-accent);
+      }
+
+      .an-comment__time {
+        font-size: 0.65rem;
+        color: var(--an-muted);
+      }
+
+      .an-comment__text {
+        margin: 0;
+        font-size: 0.75rem;
+        color: var(--an-text);
+        line-height: 1.4;
+      }
+
+      .an-comment__meta {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.65rem;
+        color: var(--an-muted);
+      }
+
+      .an-comment__likes {
+        color: var(--an-accent);
+        font-weight: 600;
+      }
+
+      .an-toggle-row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: auto;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--an-border);
+      }
+
+      .an-pill {
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius-sm);
+        background: transparent;
+        font-family: inherit;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--an-muted);
+        cursor: pointer;
+        transition: background var(--an-transition), color var(--an-transition),
+          border-color var(--an-transition);
+      }
+
+      .an-pill:hover {
+        color: var(--an-text);
+        border-color: rgba(91, 231, 196, 0.35);
+      }
+
+      .an-pill.is-active {
+        color: #0a0a0a;
+        background: var(--an-accent);
+        border-color: var(--an-accent);
+      }
+
+      .an-stat-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.25rem;
+      }
+
+      .an-stat-hero__num {
+        font-size: clamp(1.75rem, 4vw, 2.35rem);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--an-accent);
+        line-height: 1.1;
+      }
+
+      .an-stat-hero__sub {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        color: var(--an-muted);
+      }
+
+      .an-stat-hero__growth {
+        margin: 0.35rem 0 0;
+        font-size: 0.72rem;
+        color: var(--an-accent);
+        font-weight: 600;
+      }
+
+      .an-filters {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.35rem;
+        margin-top: 0.75rem;
+      }
+
+      .an-stat-note {
+        margin: 0.35rem 0 0;
+        font-size: 0.72rem;
+        color: var(--an-muted);
+        text-align: center;
+      }
+
+      .an-clients-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .an-clients {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .an-clients__num {
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        font-weight: 700;
+        color: var(--an-accent);
+        line-height: 1;
+      }
+
+      .an-clients__break {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+      }
+
+      .an-clients__cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.5rem;
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius-sm);
+        background: rgba(0, 0, 0, 0.25);
+      }
+
+      .an-clients__label {
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--an-muted);
+      }
+
+      .an-clients__val {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--an-text);
+      }
+
+      .an-side-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 160px;
+      }
+
+      .an-metric-mini {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.85rem;
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius-sm);
+        background: rgba(0, 0, 0, 0.2);
+      }
+
+      .an-metric-mini__label {
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--an-muted);
+      }
+
+      .an-metric-mini__num {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--an-accent);
+      }
+
+      .an-chart-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .an-chart-wrap {
+        position: relative;
+        width: 100%;
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius-sm);
+        background: rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .an-chart-wrap svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        vertical-align: middle;
+      }
+
+      .an-chart-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+      }
+
+      .an-chart-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.65rem;
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius-sm);
+        background: rgba(0, 0, 0, 0.15);
+      }
+
+      .an-chart-stat__label {
+        font-size: 0.58rem;
+        letter-spacing: 0.12em;
+        color: var(--an-muted);
+      }
+
+      .an-chart-stat__val {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--an-accent);
+      }
+
+      .an-donuts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+
+      .an-donut-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 1rem 0.75rem;
+      }
+
+      .an-donut-card__chart {
+        width: 100%;
+        max-width: 160px;
+        aspect-ratio: 1;
+      }
+
+      .an-donut-card__chart svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .an-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        width: 100%;
+        font-size: 0.65rem;
+      }
+
+      .an-legend__row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--an-muted);
+      }
+
+      .an-legend__swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      .an-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--an-transition), visibility var(--an-transition);
+      }
+
+      .an-overlay.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .an-overlay__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .an-overlay__panel {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: min(300px, 100%);
+        padding: 1.25rem;
+        border-radius: var(--an-radius);
+        background: #121212;
+        border: 1px solid var(--an-border);
+      }
+
+      .an-overlay__close {
+        align-self: flex-end;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--an-border);
+        border-radius: var(--an-radius-sm);
+        background: transparent;
+        color: var(--an-text);
+        font-family: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+
+      .an-overlay__link {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--an-radius-sm);
+        color: var(--an-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: color var(--an-transition), background var(--an-transition);
+      }
+
+      .an-overlay__link:hover {
+        color: var(--an-accent);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      @media (max-width: 1100px) {
+        .an-row-top {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .an-row-top .an-card:nth-child(1) {
+          grid-column: 1 / -1;
+        }
+
+        .an-clients-row {
+          grid-template-columns: 1fr;
+        }
+
+        .an-side-metrics {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+
+        .an-side-metrics .an-metric-mini {
+          flex: 1 1 140px;
+        }
+
+        .an-donuts {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .an-row-top {
+          grid-template-columns: 1fr;
+        }
+
+        .an-clients__break {
+          grid-template-columns: 1fr;
+        }
+
+        .an-chart-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .an-donuts {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="analytics-page">
+    <header class="an-topbar">
+      <a href="overview.html" class="an-topbar__brand">CREESTUDIOS</a>
+      <button
+        type="button"
+        class="an-topbar__burger"
+        id="an-burger"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="an-overlay"
+      >
+        <span class="an-topbar__burger-line" aria-hidden="true"></span>
+        <span class="an-topbar__burger-line" aria-hidden="true"></span>
+        <span class="an-topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <main class="an-main">
+      <div class="an-row-top">
+        <section class="an-card an-comments" aria-labelledby="an-comments-title">
+          <h2 id="an-comments-title" class="an-card__title">Comments</h2>
+          <div class="an-comments__list" id="an-comments-list"></div>
+          <div class="an-toggle-row" role="group" aria-label="Sort comments">
+            <button type="button" class="an-pill is-active" data-comment-sort="mostLiked">Most Liked</button>
+            <button type="button" class="an-pill" data-comment-sort="recent">Recent</button>
+          </div>
+        </section>
+
+        <section class="an-card" aria-labelledby="an-views-title">
+          <h2 id="an-views-title" class="an-card__title">Total views</h2>
+          <div class="an-stat-hero">
+            <span class="an-stat-hero__num" id="an-views-num">1.2M</span>
+            <span class="an-stat-hero__sub">Views</span>
+            <p class="an-stat-hero__growth" id="an-views-growth">+23% increase from last month</p>
+          </div>
+          <div class="an-filters" role="group" aria-label="Views period">
+            <button type="button" class="an-pill is-active" data-views-filter="7d">7d</button>
+            <button type="button" class="an-pill" data-views-filter="30d">30d</button>
+            <button type="button" class="an-pill" data-views-filter="90d">90d</button>
+            <button type="button" class="an-pill" data-views-filter="1y">1y</button>
+          </div>
+        </section>
+
+        <section class="an-card" aria-labelledby="an-subs-title">
+          <h2 id="an-subs-title" class="an-card__title">Subscribers</h2>
+          <div class="an-stat-hero">
+            <span class="an-stat-hero__num" id="an-subs-num">45.8K</span>
+            <span class="an-stat-hero__sub">Subscribers</span>
+            <p class="an-stat-note" id="an-subs-note">+2,342 new subscribers this week</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="an-clients-row">
+        <section class="an-card an-clients" aria-labelledby="an-clients-title">
+          <h2 id="an-clients-title" class="an-card__title">Total clients</h2>
+          <div class="an-clients__num" id="an-clients-total">287</div>
+          <div class="an-clients__break">
+            <div class="an-clients__cell">
+              <span class="an-clients__label">Active</span>
+              <span class="an-clients__val" id="an-clients-active">156</span>
+            </div>
+            <div class="an-clients__cell">
+              <span class="an-clients__label">Completed</span>
+              <span class="an-clients__val" id="an-clients-completed">89</span>
+            </div>
+            <div class="an-clients__cell">
+              <span class="an-clients__label">Pending</span>
+              <span class="an-clients__val" id="an-clients-pending">42</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="an-side-metrics">
+          <div class="an-card an-metric-mini">
+            <span class="an-metric-mini__label">Total appreciations</span>
+            <span class="an-metric-mini__num" id="an-appreciations">12.4K</span>
+          </div>
+          <div class="an-card an-metric-mini">
+            <span class="an-metric-mini__label">Total likes</span>
+            <span class="an-metric-mini__num" id="an-likes">89.2K</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="an-card an-chart-block" aria-labelledby="an-growth-title">
+        <h2 id="an-growth-title" class="an-card__title">User growth</h2>
+        <div class="an-chart-wrap" id="an-chart-container"></div>
+        <div class="an-chart-stats">
+          <div class="an-chart-stat">
+            <span class="an-chart-stat__label">Current</span>
+            <span class="an-chart-stat__val" id="an-stat-current">250,000</span>
+          </div>
+          <div class="an-chart-stat">
+            <span class="an-chart-stat__label">Growth rate</span>
+            <span class="an-chart-stat__val" id="an-stat-growth">+23.5%</span>
+          </div>
+          <div class="an-chart-stat">
+            <span class="an-chart-stat__label">Projected</span>
+            <span class="an-chart-stat__val" id="an-stat-projected">308,750</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="an-donuts" id="an-donuts-root" aria-label="Distribution charts"></section>
+    </main>
+
+    <div id="an-overlay" class="an-overlay" hidden aria-hidden="true">
+      <div class="an-overlay__backdrop" data-an-close></div>
+      <div class="an-overlay__panel">
+        <button type="button" class="an-overlay__close" data-an-close>Close</button>
+        <a href="overview.html" class="an-overlay__link">Overview</a>
+        <a href="posts.html" class="an-overlay__link">Posts</a>
+        <a href="users.html" class="an-overlay__link">Users</a>
+        <a href="analytics.html" class="an-overlay__link">Analytics</a>
+        <a href="settings.html" class="an-overlay__link">Settings</a>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var STORAGE_KEY = "dashboard_analytics";
+
+        var DEFAULT_ANALYTICS = {
+          views: 1200000,
+          subscribers: 45800,
+          clients: {
+            total: 287,
+            active: 156,
+            completed: 89,
+            pending: 42,
+          },
+          likes: 89200,
+          appreciations: 12400,
+          viewsGrowthPercent: 23,
+          subsWeeklyNew: 2342,
+          growthRatePercent: 23.5,
+          growthCurrent: 250000,
+          growthProjected: 308750,
+          growthChart: [
+            { month: "Jan", value: 150000 },
+            { month: "Feb", value: 170000 },
+            { month: "Mar", value: 180000 },
+            { month: "Apr", value: 160000 },
+            { month: "May", value: 210000 },
+            { month: "Jun", value: 50000 },
+            { month: "Jul", value: 120000 },
+            { month: "Aug", value: 250000 },
+            { month: "Sep", value: 270000 },
+            { month: "Oct", value: 290000 },
+            { month: "Nov", value: 310000 },
+            { month: "Dec", value: 320000 },
+          ],
+          growthRatePercent: 23.5,
+          commentSort: "mostLiked",
+          viewsFilter: "7d",
+        };
+
+        var DEFAULT_COMMENTS = [
+          { user: "Alex Rivera", text: "Loved the new dashboard layout — super clean.", likes: 142, time: "2h ago", ts: Date.now() - 7200000 },
+          { user: "Jordan Lee", text: "Can we export reports to PDF?", likes: 89, time: "5h ago", ts: Date.now() - 18000000 },
+          { user: "Sam Okonkwo", text: "Analytics load time feels instant now.", likes: 256, time: "1d ago", ts: Date.now() - 86400000 },
+          { user: "Morgan Chen", text: "Dark mode mint accent is perfect.", likes: 67, time: "2d ago", ts: Date.now() - 172800000 },
+          { user: "Riley Park", text: "Notifications could use grouping.", likes: 34, time: "3d ago", ts: Date.now() - 259200000 },
+        ];
+
+        var DONUT_DEFS = [
+          {
+            title: "User segments",
+            segments: [
+              { label: "Main", value: 45, color: "#5be7c4" },
+              { label: "Secondary", value: 35, color: "#8fd9c4" },
+              { label: "Casual", value: 20, color: "#c4b89a" },
+            ],
+          },
+          {
+            title: "Traffic sources",
+            segments: [
+              { label: "Organic", value: 52, color: "#5be7c4" },
+              { label: "Direct", value: 28, color: "#7dd4bc" },
+              { label: "Referral", value: 20, color: "#b8a88c" },
+            ],
+          },
+          {
+            title: "Device usage",
+            segments: [
+              { label: "Desktop", value: 48, color: "#5be7c4" },
+              { label: "Mobile", value: 42, color: "#9ae0cc" },
+              { label: "Tablet", value: 10, color: "#a89b82" },
+            ],
+          },
+          {
+            title: "Plan type",
+            segments: [
+              { label: "Pro", value: 40, color: "#5be7c4" },
+              { label: "Team", value: 35, color: "#86d8c0" },
+              { label: "Free", value: 25, color: "#c9bc9f" },
+            ],
+          },
+          {
+            title: "Regional users",
+            segments: [
+              { label: "NA", value: 44, color: "#5be7c4" },
+              { label: "EU", value: 33, color: "#7ecfb8" },
+              { label: "APAC", value: 23, color: "#b5a78e" },
+            ],
+          },
+          {
+            title: "Activity time",
+            segments: [
+              { label: "Day", value: 38, color: "#5be7c4" },
+              { label: "Evening", value: 37, color: "#8be0cd" },
+              { label: "Night", value: 25, color: "#ada08a" },
+            ],
+          },
+        ];
+
+        function formatCompact(n) {
+          if (n >= 1e6) return (n / 1e6).toFixed(n % 1e6 === 0 ? 1 : 1).replace(/\.0$/, "") + "M";
+          if (n >= 1e3) return (n / 1e3).toFixed(n % 1e3 === 0 ? 1 : 1).replace(/\.0$/, "") + "K";
+          return String(Math.round(n));
+        }
+
+        function formatInt(n) {
+          return Math.round(n).toLocaleString("en-US");
+        }
+
+        function deepMerge(base, extra) {
+          if (!extra || typeof extra !== "object" || Array.isArray(extra)) {
+            return JSON.parse(JSON.stringify(base));
+          }
+          var out = {};
+          var k;
+          for (k in base) {
+            if (!Object.prototype.hasOwnProperty.call(base, k)) continue;
+            if (
+              base[k] !== null &&
+              typeof base[k] === "object" &&
+              !Array.isArray(base[k]) &&
+              extra[k] &&
+              typeof extra[k] === "object" &&
+              !Array.isArray(extra[k])
+            ) {
+              out[k] = deepMerge(base[k], extra[k]);
+            } else {
+              out[k] = Object.prototype.hasOwnProperty.call(extra, k) ? extra[k] : base[k];
+            }
+          }
+          for (k in extra) {
+            if (Object.prototype.hasOwnProperty.call(extra, k) && !Object.prototype.hasOwnProperty.call(out, k)) {
+              out[k] = extra[k];
+            }
+          }
+          return out;
+        }
+
+        function saveAnalytics(data) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          } catch (e) {}
+        }
+
+        function loadAnalytics() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+              var initial = JSON.parse(JSON.stringify(DEFAULT_ANALYTICS));
+              initial.comments = DEFAULT_COMMENTS.slice();
+              saveAnalytics(initial);
+              return initial;
+            }
+            var parsed = JSON.parse(raw);
+            var merged = deepMerge(DEFAULT_ANALYTICS, parsed);
+            if (!merged.comments || !Array.isArray(merged.comments) || merged.comments.length === 0) {
+              merged.comments = DEFAULT_COMMENTS.slice();
+            }
+            if (!merged.growthChart || merged.growthChart.length === 0) {
+              merged.growthChart = DEFAULT_ANALYTICS.growthChart.slice();
+            }
+            return merged;
+          } catch (e) {
+            var fallback = JSON.parse(JSON.stringify(DEFAULT_ANALYTICS));
+            fallback.comments = DEFAULT_COMMENTS.slice();
+            return fallback;
+          }
+        }
+
+        function smoothLinePath(points) {
+          var n = points.length;
+          if (n < 2) return "";
+          var d = "M " + points[0].x + " " + points[0].y;
+          var i;
+          for (i = 0; i < n - 1; i++) {
+            var p0 = points[Math.max(0, i - 1)];
+            var p1 = points[i];
+            var p2 = points[i + 1];
+            var p3 = points[Math.min(n - 1, i + 2)];
+            var cp1x = p1.x + (p2.x - p0.x) / 6;
+            var cp1y = p1.y + (p2.y - p0.y) / 6;
+            var cp2x = p2.x - (p3.x - p1.x) / 6;
+            var cp2y = p2.y - (p3.y - p1.y) / 6;
+            d += " C " + cp1x + " " + cp1y + " " + cp2x + " " + cp2y + " " + p2.x + " " + p2.y;
+          }
+          return d;
+        }
+
+        function renderChart(container, series, opts) {
+          opts = opts || {};
+          var w = opts.width || 800;
+          var h = opts.height || 260;
+          var padL = 48;
+          var padR = 16;
+          var padT = 20;
+          var padB = 36;
+          var innerW = w - padL - padR;
+          var innerH = h - padT - padB;
+          var values = series.map(function (d) {
+            return d.value;
+          });
+          var maxV = Math.max.apply(null, values) * 1.05;
+          var minV = 0;
+          var n = series.length;
+          var points = series.map(function (d, i) {
+            var x = padL + (innerW * i) / Math.max(1, n - 1);
+            var y = padT + innerH - ((d.value - minV) / (maxV - minV || 1)) * innerH;
+            return { x: x, y: y };
+          });
+          var lineD = smoothLinePath(points);
+          var last = points[points.length - 1];
+          var first = points[0];
+          var fillD =
+            lineD +
+            " L " +
+            last.x +
+            " " +
+            (h - padB) +
+            " L " +
+            first.x +
+            " " +
+            (h - padB) +
+            " Z";
+
+          var yTicks = 4;
+          var yLabels = [];
+          var ti;
+          for (ti = 0; ti <= yTicks; ti++) {
+            var frac = ti / yTicks;
+            var val = minV + (maxV - minV) * (1 - frac);
+            var ly = padT + innerH * frac;
+            yLabels.push({ y: ly, text: formatCompact(val) });
+          }
+
+          var svg =
+            '<svg viewBox="0 0 ' +
+            w +
+            " " +
+            h +
+            '" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+            "<defs>" +
+            '<linearGradient id="anChartGrad" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#5be7c4" stop-opacity="0.35"/>' +
+            '<stop offset="100%" stop-color="#5be7c4" stop-opacity="0"/>' +
+            "</linearGradient>" +
+            "</defs>" +
+            '<g stroke="rgba(255,255,255,0.08)" stroke-width="1">';
+          for (ti = 0; ti < yLabels.length; ti++) {
+            svg +=
+              '<line x1="' +
+              padL +
+              '" y1="' +
+              yLabels[ti].y +
+              '" x2="' +
+              (w - padR) +
+              '" y2="' +
+              yLabels[ti].y +
+              '"/>';
+          }
+          svg += "</g>";
+
+          for (ti = 0; ti < yLabels.length; ti++) {
+            svg +=
+              '<text x="' +
+              (padL - 8) +
+              '" y="' +
+              (yLabels[ti].y + 4) +
+              '" fill="#a1a1a1" font-size="10" text-anchor="end" font-family="Unbounded, sans-serif">' +
+              yLabels[ti].text +
+              "</text>";
+          }
+
+          svg +=
+            '<path d="' +
+            fillD +
+            '" fill="url(#anChartGrad)" stroke="none"/>' +
+            '<path d="' +
+            lineD +
+            '" fill="none" stroke="#5be7c4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+
+          series.forEach(function (d, i) {
+            var px = points[i].x;
+            var py = points[i].y;
+            svg +=
+              '<text x="' +
+              px +
+              '" y="' +
+              (h - 8) +
+              '" fill="#a1a1a1" font-size="9" text-anchor="middle" font-family="Unbounded, sans-serif">' +
+              d.month +
+              "</text>";
+          });
+
+          svg += "</svg>";
+          container.innerHTML = svg;
+        }
+
+        function polar(cx, cy, r, angleDeg) {
+          var rad = ((angleDeg - 90) * Math.PI) / 180;
+          return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+        }
+
+        function donutArcPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
+          var p1 = polar(cx, cy, rOuter, startAngle);
+          var p2 = polar(cx, cy, rOuter, endAngle);
+          var p3 = polar(cx, cy, rInner, endAngle);
+          var p4 = polar(cx, cy, rInner, startAngle);
+          var large = endAngle - startAngle > 180 ? 1 : 0;
+          return [
+            "M",
+            p1.x,
+            p1.y,
+            "A",
+            rOuter,
+            rOuter,
+            0,
+            large,
+            1,
+            p2.x,
+            p2.y,
+            "L",
+            p3.x,
+            p3.y,
+            "A",
+            rInner,
+            rInner,
+            0,
+            large,
+            0,
+            p4.x,
+            p4.y,
+            "Z",
+          ].join(" ");
+        }
+
+        function renderDonut(container, title, segments) {
+          var card = document.createElement("article");
+          card.className = "an-card an-donut-card";
+          card.setAttribute("aria-label", title);
+
+          var h = document.createElement("h3");
+          h.className = "an-card__title";
+          h.textContent = title;
+          card.appendChild(h);
+
+          var wrap = document.createElement("div");
+          wrap.className = "an-donut-card__chart";
+
+          var total = segments.reduce(function (s, x) {
+            return s + x.value;
+          }, 0);
+          var cx = 50;
+          var cy = 50;
+          var rO = 38;
+          var rI = 24;
+          var start = 0;
+          var svgNS = "http://www.w3.org/2000/svg";
+          var svg = document.createElementNS(svgNS, "svg");
+          svg.setAttribute("viewBox", "0 0 100 100");
+          segments.forEach(function (seg) {
+            var sweep = (seg.value / total) * 360;
+            var end = start + sweep;
+            if (sweep > 0.1) {
+              var path = document.createElementNS(svgNS, "path");
+              path.setAttribute("d", donutArcPath(cx, cy, rO, rI, start, end));
+              path.setAttribute("fill", seg.color);
+              svg.appendChild(path);
+            }
+            start = end;
+          });
+
+          wrap.appendChild(svg);
+          card.appendChild(wrap);
+
+          var leg = document.createElement("div");
+          leg.className = "an-legend";
+          segments.forEach(function (seg) {
+            var row = document.createElement("div");
+            row.className = "an-legend__row";
+            var sw = document.createElement("span");
+            sw.className = "an-legend__swatch";
+            sw.style.background = seg.color;
+            var tx = document.createElement("span");
+            tx.textContent = seg.label + " · " + seg.value + "%";
+            row.appendChild(sw);
+            row.appendChild(tx);
+            leg.appendChild(row);
+          });
+          card.appendChild(leg);
+
+          container.appendChild(card);
+        }
+
+        function renderComments(data) {
+          var list = document.getElementById("an-comments-list");
+          if (!list) return;
+          var sort = data.commentSort === "recent" ? "recent" : "mostLiked";
+          var items = (data.comments || []).slice();
+          if (sort === "mostLiked") {
+            items.sort(function (a, b) {
+              return (b.likes || 0) - (a.likes || 0);
+            });
+          } else {
+            items.sort(function (a, b) {
+              return (b.ts || 0) - (a.ts || 0);
+            });
+          }
+          list.innerHTML = "";
+          items.forEach(function (c) {
+            var el = document.createElement("article");
+            el.className = "an-comment";
+            el.innerHTML =
+              '<div class="an-comment__head">' +
+              '<span class="an-comment__user"></span>' +
+              '<span class="an-comment__time"></span>' +
+              "</div>" +
+              '<p class="an-comment__text"></p>' +
+              '<div class="an-comment__meta"><span class="an-comment__likes"></span> likes</div>';
+            el.querySelector(".an-comment__user").textContent = c.user;
+            el.querySelector(".an-comment__time").textContent = c.time;
+            el.querySelector(".an-comment__text").textContent = c.text;
+            el.querySelector(".an-comment__likes").textContent = c.likes;
+            list.appendChild(el);
+          });
+        }
+
+        function bindUI(data) {
+          document.querySelectorAll("[data-comment-sort]").forEach(function (btn) {
+            btn.classList.toggle("is-active", btn.getAttribute("data-comment-sort") === data.commentSort);
+            btn.onclick = function () {
+              data.commentSort = btn.getAttribute("data-comment-sort");
+              saveAnalytics(data);
+              renderComments(data);
+              document.querySelectorAll("[data-comment-sort]").forEach(function (b) {
+                b.classList.toggle("is-active", b.getAttribute("data-comment-sort") === data.commentSort);
+              });
+            };
+          });
+
+          document.querySelectorAll("[data-views-filter]").forEach(function (btn) {
+            btn.classList.toggle("is-active", btn.getAttribute("data-views-filter") === data.viewsFilter);
+            btn.onclick = function () {
+              data.viewsFilter = btn.getAttribute("data-views-filter");
+              saveAnalytics(data);
+              applyViewsFilter(data);
+              document.querySelectorAll("[data-views-filter]").forEach(function (b) {
+                b.classList.toggle("is-active", b.getAttribute("data-views-filter") === data.viewsFilter);
+              });
+            };
+          });
+        }
+
+        function applyViewsFilter(data) {
+          var el = document.getElementById("an-views-num");
+          if (el) el.textContent = formatCompact(data.views);
+        }
+
+        function updateKPIs(data) {
+          var vg = document.getElementById("an-views-growth");
+          if (vg) vg.textContent = "+" + (data.viewsGrowthPercent || 23) + "% increase from last month";
+
+          document.getElementById("an-subs-num").textContent = formatCompact(data.subscribers);
+          var note = document.getElementById("an-subs-note");
+          if (note) {
+            note.textContent =
+              "+" + formatInt(data.subsWeeklyNew || 2342) + " new subscribers this week";
+          }
+
+          document.getElementById("an-clients-total").textContent = String(data.clients.total);
+          document.getElementById("an-clients-active").textContent = String(data.clients.active);
+          document.getElementById("an-clients-completed").textContent = String(data.clients.completed);
+          document.getElementById("an-clients-pending").textContent = String(data.clients.pending);
+
+          document.getElementById("an-appreciations").textContent = formatCompact(data.appreciations);
+          document.getElementById("an-likes").textContent = formatCompact(data.likes);
+
+          applyViewsFilter(data);
+        }
+
+        function updateChartStats(data) {
+          var series = data.growthChart || DEFAULT_ANALYTICS.growthChart;
+          var last = series[series.length - 1];
+          var prev = series[series.length - 2] || last;
+          var rate =
+            data.growthRatePercent != null
+              ? data.growthRatePercent
+              : ((last.value - prev.value) / (prev.value || 1)) * 100;
+          var current =
+            data.growthCurrent != null ? data.growthCurrent : last.value;
+          var projected =
+            data.growthProjected != null
+              ? data.growthProjected
+              : Math.round(current * (1 + rate / 100));
+
+          var curEl = document.getElementById("an-stat-current");
+          var grEl = document.getElementById("an-stat-growth");
+          var prEl = document.getElementById("an-stat-projected");
+          if (curEl) curEl.textContent = formatInt(current);
+          if (grEl) grEl.textContent = (rate >= 0 ? "+" : "") + rate.toFixed(1) + "%";
+          if (prEl) prEl.textContent = formatInt(projected);
+        }
+
+        var analyticsData = null;
+
+        function init() {
+          analyticsData = loadAnalytics();
+          updateKPIs(analyticsData);
+          updateChartStats(analyticsData);
+
+          var chartEl = document.getElementById("an-chart-container");
+          if (chartEl) {
+            renderChart(chartEl, analyticsData.growthChart || DEFAULT_ANALYTICS.growthChart, {
+              width: 800,
+              height: 260,
+            });
+          }
+
+          var donutsRoot = document.getElementById("an-donuts-root");
+          if (donutsRoot) {
+            donutsRoot.innerHTML = "";
+            DONUT_DEFS.forEach(function (def) {
+              renderDonut(donutsRoot, def.title, def.segments);
+            });
+          }
+
+          renderComments(analyticsData);
+          bindUI(analyticsData);
+
+          var burger = document.getElementById("an-burger");
+          var overlay = document.getElementById("an-overlay");
+          function openO() {
+            overlay.removeAttribute("hidden");
+            overlay.setAttribute("aria-hidden", "false");
+            overlay.classList.add("is-open");
+            if (burger) burger.setAttribute("aria-expanded", "true");
+            document.body.style.overflow = "hidden";
+          }
+          function closeO() {
+            overlay.classList.remove("is-open");
+            overlay.setAttribute("aria-hidden", "true");
+            if (burger) burger.setAttribute("aria-expanded", "false");
+            document.body.style.overflow = "";
+            setTimeout(function () {
+              overlay.setAttribute("hidden", "");
+            }, 250);
+          }
+          if (burger) {
+            burger.addEventListener("click", function () {
+              if (overlay.classList.contains("is-open")) closeO();
+              else openO();
+            });
+          }
+          document.querySelectorAll("[data-an-close]").forEach(function (el) {
+            el.addEventListener("click", closeO);
+          });
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", init);
+        } else {
+          init();
+        }
+
+        window.AnalyticsPage = {
+          loadAnalytics: loadAnalytics,
+          renderChart: renderChart,
+          renderDonut: renderDonut,
+        };
+      })();
+    </script>
+  </body>
+</html>
