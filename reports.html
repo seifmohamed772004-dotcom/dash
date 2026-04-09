@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="dashboard-page reports-page">
+    <header class="topbar">
+      <a href="overview.html" class="topbar__brand topbar__brand--studio">
+        CREE<span class="topbar__brand-mark" aria-hidden="true"></span>STUDIOS
+      </a>
+      <button
+        type="button"
+        class="topbar__burger"
+        id="nav-open"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-overlay"
+        aria-haspopup="dialog"
+      >
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <main class="reports-main">
+      <h1 class="reports-page__title">REPORTS</h1>
+
+      <section class="reports-section" aria-labelledby="reports-heading-24h">
+        <h2 id="reports-heading-24h" class="reports-section__heading">LAST 24 HOURS</h2>
+        <div class="reports-strip-wrap">
+          <div class="reports-strip" id="reports-strip-24h"></div>
+        </div>
+        <p class="reports-section__empty" id="reports-empty-24h" hidden>No reports found</p>
+      </section>
+
+      <section class="reports-section" aria-labelledby="reports-heading-7d">
+        <h2 id="reports-heading-7d" class="reports-section__heading">LAST 7 DAYS</h2>
+        <div class="reports-strip-wrap">
+          <div class="reports-strip" id="reports-strip-7d"></div>
+        </div>
+        <p class="reports-section__empty" id="reports-empty-7d" hidden>No reports found</p>
+      </section>
+
+      <section class="reports-section" aria-labelledby="reports-heading-30d">
+        <h2 id="reports-heading-30d" class="reports-section__heading">LAST 30 DAYS</h2>
+        <div class="reports-strip-wrap">
+          <div class="reports-strip" id="reports-strip-30d"></div>
+        </div>
+        <p class="reports-section__empty" id="reports-empty-30d" hidden>No reports found</p>
+      </section>
+
+      <div class="reports-footer">
+        <button
+          type="button"
+          class="reports-banned-toggle"
+          id="reports-banned-toggle"
+          aria-pressed="false"
+        >
+          Show Banned Users
+        </button>
+        <a href="all-reports.html" class="reports-view-all">View All Reports</a>
+      </div>
+    </main>
+
+    <div id="nav-overlay-container"></div>
+    <script src="script.js"></script>
+  </body>
+</html>

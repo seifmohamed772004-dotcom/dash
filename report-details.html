@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="dashboard-page report-details-page">
+    <header class="topbar">
+      <a href="overview.html" class="topbar__brand topbar__brand--studio">
+        CREE<span class="topbar__brand-mark" aria-hidden="true"></span>STUDIOS
+      </a>
+      <button
+        type="button"
+        class="topbar__burger"
+        id="nav-open"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-overlay"
+        aria-haspopup="dialog"
+      >
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <div id="report-details-root">
+      <div id="report-details-error" class="report-details__error" hidden>
+        <p class="report-details__error-title">Report not found</p>
+        <a href="reports.html" class="report-details__error-link">Back to reports</a>
+      </div>
+
+      <main id="report-details-content" class="report-details" hidden>
+        <p class="report-details__back">
+          <a href="reports.html" class="report-details__back-link">← Reports</a>
+        </p>
+        <p class="report-details__label">REPORT CASE</p>
+        <div class="report-details__avatars">
+          <img src="" alt="" class="report-details__avatar" id="report-details-img-reporter" width="56" height="56" />
+          <span class="report-card__arrow" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12h14M13 6l6 6-6 6"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <img src="" alt="" class="report-details__avatar" id="report-details-img-reported" width="56" height="56" />
+        </div>
+        <p class="report-details__case" id="report-details-case-id"></p>
+        <p class="report-details__reason" id="report-details-reason"></p>
+        <p class="report-details__meta">
+          <span class="report-details__status" id="report-details-status"></span>
+          ·
+          <time id="report-details-date"></time>
+        </p>
+        <div class="report-details__names">
+          <p><strong>Reporter:</strong> <span id="report-details-reporter"></span></p>
+          <p><strong>Reported:</strong> <span id="report-details-reported"></span></p>
+        </div>
+        <div class="report-details__actions">
+          <button type="button" class="report-details__delete" id="report-details-delete">Delete report</button>
+        </div>
+      </main>
+    </div>
+
+    <div
+      class="modal modal--delete"
+      id="report-details-delete-modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-details-delete-modal-title"
+    >
+      <div class="modal__backdrop" id="report-details-delete-modal-backdrop"></div>
+      <div class="modal__panel">
+        <h2 class="modal__title" id="report-details-delete-modal-title">Delete report?</h2>
+        <p class="modal__text">This action cannot be undone.</p>
+        <div class="modal__actions">
+          <button type="button" class="modal__btn modal__btn--ghost" id="report-details-delete-modal-cancel">
+            Cancel
+          </button>
+          <button type="button" class="modal__btn modal__btn--danger" id="report-details-delete-modal-confirm">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="nav-overlay-container"></div>
+    <script src="script.js"></script>
+  </body>
+</html>

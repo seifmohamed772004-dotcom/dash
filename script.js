@@ -937,6 +937,10 @@
         u.createdAt = new Date().toISOString();
         changed = true;
       }
+      if (u.isBanned === undefined) {
+        u.isBanned = false;
+        changed = true;
+      }
     });
     if (changed) saveData("users", users);
   }
@@ -1898,6 +1902,441 @@
     },
   };
 
+  function reportNewId() {
+    return "rep-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+  }
+
+  function userById(id) {
+    if (!id) return null;
+    return getData("users").find(function (u) {
+      return String(u.id) === String(id);
+    });
+  }
+
+  function avatarUrlForUserId(id) {
+    var u = userById(id);
+    if (!u) return "https://picsum.photos/seed/nouser/88/88";
+    return u.avatar || u.avatarUrl || avatarUrl(u.name);
+  }
+
+  function reportTimestampMs(r) {
+    if (r.createdAt) {
+      var d = new Date(r.createdAt);
+      if (!isNaN(d.getTime())) return d.getTime();
+    }
+    if (r.date && /^\d{4}-\d{2}-\d{2}$/.test(r.date)) {
+      var p = r.date.split("-");
+      return new Date(
+        Number(p[0]),
+        Number(p[1]) - 1,
+        Number(p[2]),
+        12,
+        0,
+        0
+      ).getTime();
+    }
+    return 0;
+  }
+
+  function reportMatchesBannedFilter(r, showBannedOnly) {
+    if (!showBannedOnly) return true;
+    var u = userById(r.reportedId);
+    return !!(u && u.isBanned === true);
+  }
+
+  function filterReportsForTimeSection(all, sectionKey, showBannedOnly) {
+    var now = Date.now();
+    var ms24 = 24 * 60 * 60 * 1000;
+    var ms7 = 7 * ms24;
+    var ms30 = 30 * ms24;
+    return all.filter(function (r) {
+      if (!reportMatchesBannedFilter(r, showBannedOnly)) return false;
+      var t = reportTimestampMs(r);
+      if (t <= 0 || t > now) return false;
+      var age = now - t;
+      if (sectionKey === "24h") return age <= ms24;
+      if (sectionKey === "7d") return age > ms24 && age <= ms7;
+      if (sectionKey === "30d") return age > ms7 && age <= ms30;
+      return false;
+    });
+  }
+
+  function ensureDummyReports() {
+    if (localStorage.getItem("reports") !== null) return;
+
+    ensureUserDashboardData();
+    var users = getData("users");
+    if (users.length < 2) return;
+
+    var ucopy = users.slice();
+    if (ucopy.length > 2) ucopy[2].isBanned = true;
+    if (ucopy.length > 5) ucopy[5].isBanned = true;
+    saveData("users", ucopy);
+    users = getData("users");
+
+    var now = Date.now();
+    function isoHoursAgo(h) {
+      return new Date(now - h * 60 * 60 * 1000).toISOString();
+    }
+    function pickPair(ia, ib) {
+      var a = users[ia % users.length];
+      var b = users[ib % users.length];
+      if (a.id === b.id) b = users[(ib + 1) % users.length];
+      return { reporter: a, reported: b };
+    }
+
+    var rows = [
+      { ia: 0, ib: 1, reason: "Bullying", h: 3, status: "active" },
+      { ia: 1, ib: 2, reason: "Harassment", h: 8, status: "active" },
+      { ia: 2, ib: 3, reason: "Spam", h: 18, status: "resolved" },
+      { ia: 0, ib: 4, reason: "Scam", h: 40, status: "active" },
+      { ia: 3, ib: 0, reason: "Bullying", h: 90, status: "active" },
+      { ia: 4, ib: 1, reason: "Harassment", h: 120, status: "resolved" },
+      { ia: 1, ib: 5, reason: "Spam", h: 200, status: "active" },
+      { ia: 5, ib: 2, reason: "Scam", h: 300, status: "active" },
+      { ia: 2, ib: 6, reason: "Bullying", h: 400, status: "resolved" },
+      { ia: 6, ib: 3, reason: "Harassment", h: 500, status: "active" },
+      { ia: 7, ib: 4, reason: "Spam", h: 600, status: "active" },
+      { ia: 0, ib: 2, reason: "Scam", h: 12, status: "active" },
+    ];
+
+    var reports = rows.map(function (row) {
+      var pair = pickPair(row.ia, row.ib);
+      var created = isoHoursAgo(row.h);
+      return {
+        id: reportNewId(),
+        reporterId: pair.reporter.id,
+        reportedId: pair.reported.id,
+        reporterName: pair.reporter.name,
+        reportedName: pair.reported.name,
+        reason: row.reason,
+        date: created.slice(0, 10),
+        createdAt: created,
+        status: row.status,
+      };
+    });
+
+    try {
+      saveData("reports", reports);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function deleteReportById(reportId) {
+    var list = getData("reports");
+    var next = list.filter(function (r) {
+      return r.id !== reportId;
+    });
+    try {
+      saveData("reports", next);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function buildReportCardEl(r, opts) {
+    opts = opts || {};
+    var card = document.createElement("article");
+    card.className = "report-card";
+    card.setAttribute("data-report-id", r.id);
+
+    var top = document.createElement("div");
+    top.className = "report-card__label";
+    top.textContent = "REPORT CASE";
+
+    var av = document.createElement("div");
+    av.className = "report-card__avatars";
+    var img1 = document.createElement("img");
+    img1.className = "report-card__avatar";
+    img1.src = avatarUrlForUserId(r.reporterId);
+    img1.alt = "";
+    img1.width = 40;
+    img1.height = 40;
+    img1.loading = "lazy";
+    var arrow = document.createElement("span");
+    arrow.className = "report-card__arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.innerHTML =
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var img2 = document.createElement("img");
+    img2.className = "report-card__avatar";
+    img2.src = avatarUrlForUserId(r.reportedId);
+    img2.alt = "";
+    img2.width = 40;
+    img2.height = 40;
+    img2.loading = "lazy";
+    av.appendChild(img1);
+    av.appendChild(arrow);
+    av.appendChild(img2);
+
+    var caseId = document.createElement("p");
+    caseId.className = "report-card__case";
+    caseId.textContent = "CASE #" + String(r.id).slice(-8).toUpperCase();
+
+    var reason = document.createElement("p");
+    reason.className = "report-card__reason";
+    reason.textContent = (r.reason || "").toUpperCase();
+
+    var dateEl = document.createElement("time");
+    dateEl.className = "report-card__date";
+    dateEl.dateTime = r.date || "";
+    dateEl.textContent = formatPostDisplayDate(r.date);
+
+    var btn = document.createElement("a");
+    btn.className = "report-card__btn";
+    btn.href = "report-details.html?id=" + encodeURIComponent(r.id);
+    btn.textContent = "VIEW CASE";
+
+    card.appendChild(top);
+    card.appendChild(av);
+    card.appendChild(caseId);
+    card.appendChild(reason);
+    card.appendChild(dateEl);
+    card.appendChild(btn);
+
+    if (opts.showDelete) {
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "report-card__delete";
+      del.setAttribute("data-delete-report", r.id);
+      del.textContent = "Delete";
+      card.appendChild(del);
+    }
+
+    return card;
+  }
+
+  var reportsShowBannedOnly = false;
+
+  function renderReportsDashboard() {
+    var s24 = document.getElementById("reports-strip-24h");
+    var s7 = document.getElementById("reports-strip-7d");
+    var s30 = document.getElementById("reports-strip-30d");
+    var e24 = document.getElementById("reports-empty-24h");
+    var e7 = document.getElementById("reports-empty-7d");
+    var e30 = document.getElementById("reports-empty-30d");
+    if (!s24 || !s7 || !s30) return;
+
+    var all = getData("reports");
+    [["24h", s24, e24], ["7d", s7, e7], ["30d", s30, e30]].forEach(function (tuple) {
+      var key = tuple[0];
+      var strip = tuple[1];
+      var empty = tuple[2];
+      var slice = filterReportsForTimeSection(all, key, reportsShowBannedOnly);
+      strip.innerHTML = "";
+      slice.forEach(function (r) {
+        strip.appendChild(buildReportCardEl(r));
+      });
+      if (empty) empty.hidden = slice.length > 0;
+    });
+  }
+
+  function initReportsPage() {
+    if (!document.getElementById("reports-strip-24h")) return;
+
+    ensureDummyReports();
+    var toggle = document.getElementById("reports-banned-toggle");
+    if (toggle) {
+      toggle.setAttribute("aria-pressed", reportsShowBannedOnly ? "true" : "false");
+      toggle.classList.toggle("is-active", reportsShowBannedOnly);
+      toggle.addEventListener("click", function () {
+        reportsShowBannedOnly = !reportsShowBannedOnly;
+        toggle.setAttribute("aria-pressed", reportsShowBannedOnly ? "true" : "false");
+        toggle.classList.toggle("is-active", reportsShowBannedOnly);
+        renderReportsDashboard();
+      });
+    }
+    renderReportsDashboard();
+  }
+
+  var allReportsDeletePendingId = null;
+
+  function renderAllReportsList() {
+    var listEl = document.getElementById("all-reports-list");
+    var emptyEl = document.getElementById("all-reports-empty");
+    if (!listEl) return;
+
+    var all = getData("reports");
+    var filtered = reportsShowBannedOnly
+      ? all.filter(function (r) {
+          return reportMatchesBannedFilter(r, true);
+        })
+      : all;
+
+    listEl.innerHTML = "";
+    if (filtered.length === 0) {
+      if (emptyEl) emptyEl.hidden = false;
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+
+    filtered.forEach(function (r) {
+      listEl.appendChild(buildReportCardEl(r, { showDelete: true }));
+    });
+  }
+
+  function initAllReportsPage() {
+    var listEl = document.getElementById("all-reports-list");
+    if (!listEl) return;
+
+    ensureDummyReports();
+    var toggle = document.getElementById("all-reports-banned-toggle");
+    if (toggle) {
+      toggle.setAttribute("aria-pressed", reportsShowBannedOnly ? "true" : "false");
+      toggle.classList.toggle("is-active", reportsShowBannedOnly);
+      toggle.addEventListener("click", function () {
+        reportsShowBannedOnly = !reportsShowBannedOnly;
+        toggle.setAttribute("aria-pressed", reportsShowBannedOnly ? "true" : "false");
+        toggle.classList.toggle("is-active", reportsShowBannedOnly);
+        renderAllReportsList();
+      });
+    }
+    renderAllReportsList();
+
+    var modal = document.getElementById("all-reports-delete-modal");
+    var backdrop = document.getElementById("all-reports-delete-modal-backdrop");
+    var cancel = document.getElementById("all-reports-delete-modal-cancel");
+    var confirm = document.getElementById("all-reports-delete-modal-confirm");
+
+    function closeM() {
+      allReportsDeletePendingId = null;
+      if (modal) modal.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    function openM(id) {
+      allReportsDeletePendingId = id;
+      if (modal) {
+        modal.hidden = false;
+        document.body.style.overflow = "hidden";
+        if (confirm) confirm.focus();
+      }
+    }
+
+    listEl.addEventListener("click", function (e) {
+      var del = e.target.closest && e.target.closest("[data-delete-report]");
+      if (!del) return;
+      e.preventDefault();
+      var rid = del.getAttribute("data-delete-report");
+      if (rid) openM(rid);
+    });
+
+    if (cancel) cancel.addEventListener("click", closeM);
+    if (backdrop) backdrop.addEventListener("click", closeM);
+    if (confirm) {
+      confirm.addEventListener("click", function () {
+        if (allReportsDeletePendingId) {
+          if (deleteReportById(allReportsDeletePendingId) && window.AppNotifications) {
+            window.AppNotifications.push({
+              title: "Report removed",
+              message: "A report case was deleted from the queue.",
+              type: "info",
+            });
+          }
+        }
+        closeM();
+        renderAllReportsList();
+        renderReportsDashboard();
+      });
+    }
+  }
+
+  var reportDetailsPendingDeleteId = null;
+
+  function initReportDetailsPage() {
+    var root = document.getElementById("report-details-root");
+    if (!root) return;
+
+    ensureDummyReports();
+    var id = (new URLSearchParams(location.search).get("id") || "").trim();
+    var err = document.getElementById("report-details-error");
+    var content = document.getElementById("report-details-content");
+
+    if (!id) {
+      if (err) err.hidden = false;
+      if (content) content.hidden = true;
+      return;
+    }
+
+    var rep = getData("reports").find(function (r) {
+      return String(r.id) === id;
+    });
+    if (!rep) {
+      if (err) err.hidden = false;
+      if (content) content.hidden = true;
+      return;
+    }
+
+    if (err) err.hidden = true;
+    if (content) content.hidden = false;
+
+    document.title = "Report — " + (rep.reason || "Case") + " — Admin";
+
+    var setTxt = function (elId, text) {
+      var el = document.getElementById(elId);
+      if (el) el.textContent = text;
+    };
+    setTxt("report-details-case-id", "CASE #" + String(rep.id).slice(-8).toUpperCase());
+    setTxt("report-details-reason", (rep.reason || "").toUpperCase());
+    setTxt("report-details-status", (rep.status || "").toUpperCase());
+    setTxt("report-details-date", formatPostDisplayDate(rep.date));
+    setTxt("report-details-reporter", rep.reporterName || "");
+    setTxt("report-details-reported", rep.reportedName || "");
+
+    var ir = document.getElementById("report-details-img-reporter");
+    var idr = document.getElementById("report-details-img-reported");
+    if (ir) ir.src = avatarUrlForUserId(rep.reporterId);
+    if (idr) idr.src = avatarUrlForUserId(rep.reportedId);
+
+    var delBtn = document.getElementById("report-details-delete");
+    var modal = document.getElementById("report-details-delete-modal");
+    var backdrop = document.getElementById("report-details-delete-modal-backdrop");
+    var cancel = document.getElementById("report-details-delete-modal-cancel");
+    var confirm = document.getElementById("report-details-delete-modal-confirm");
+
+    function closeM() {
+      reportDetailsPendingDeleteId = null;
+      if (modal) modal.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    function openM() {
+      reportDetailsPendingDeleteId = rep.id;
+      if (modal) {
+        modal.hidden = false;
+        document.body.style.overflow = "hidden";
+        if (confirm) confirm.focus();
+      }
+    }
+
+    if (delBtn) {
+      delBtn.onclick = function () {
+        openM();
+      };
+    }
+    if (cancel) cancel.addEventListener("click", closeM);
+    if (backdrop) backdrop.addEventListener("click", closeM);
+    if (confirm) {
+      confirm.addEventListener("click", function () {
+        if (reportDetailsPendingDeleteId && deleteReportById(reportDetailsPendingDeleteId)) {
+          if (window.AppNotifications) {
+            window.AppNotifications.push({
+              title: "Report removed",
+              message: "The report case was deleted.",
+              type: "success",
+            });
+          }
+          closeM();
+          window.location.href = "reports.html";
+          return;
+        }
+        closeM();
+      });
+    }
+  }
+
   function getSessionDisplayName() {
     try {
       var raw = localStorage.getItem("currentUser");
@@ -2402,6 +2841,9 @@
     initPostInnerPage();
     initUsersPage();
     initNotificationsPage();
+    initReportsPage();
+    initAllReportsPage();
+    initReportDetailsPage();
     injectNavOverlay();
   }
 
