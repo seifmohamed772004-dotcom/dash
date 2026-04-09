@@ -1,6 +1,4 @@
-/**
- * Main app script — storage, login, overview, posts, post inner, users, notifications, nav overlay
- */
+
 (function () {
   "use strict";
 

@@ -1,21 +1,17 @@
-/* =============================================================================
-   Main stylesheet — shared tokens, components, and page sections
-   ============================================================================= */
 
-/* Choldera DEMO — add your file to Assets/ (first matching URL wins) */
+
+
 @font-face {
   font-family: "Choldera DEMO";
-  src:
-    url("Assets/Choldera-DEMO.woff2") format("woff2"),
-    url("Assets/CholderaDEMO.woff2") format("woff2"),
-    url("Assets/Choldera%20DEMO.woff2") format("woff2"),
-    url("Assets/Choldera-DEMO.woff") format("woff"),
-    url("Assets/CholderaDEMO.woff") format("woff"),
-    url("Assets/Choldera%20DEMO.woff") format("woff"),
-    url("Assets/CholderaDEMO.otf") format("opentype"),
-    url("Assets/CholderaDEMO.ttf") format("truetype"),
-    url("Assets/Choldera%20DEMO.otf") format("opentype"),
-    url("Assets/Choldera%20DEMO.ttf") format("truetype");
+  src: url("Assets/Choldera Demo.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Unbounded";
+  src: url("Assets/Unbounded.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -63,7 +59,7 @@ html {
   height: 100%;
 }
 
-/* Default app shell (pages other than login) */
+
 body:not(.login-page) {
   margin: 0;
   min-height: 100%;
@@ -76,7 +72,7 @@ body:not(.login-page) {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ----- Login page ----- */
+
 body.login-page {
   margin: 0;
   min-height: 100%;
@@ -480,9 +476,7 @@ body.login-page {
   }
 }
 
-/* =============================================================================
-   Overview dashboard — grid, panels, topbar
-   ============================================================================= */
+
 
 .dashboard-page {
   margin: 0;
@@ -954,9 +948,7 @@ body.login-page {
   line-height: 1.6;
 }
 
-/* =============================================================================
-   Full-screen navigation overlay
-   ============================================================================= */
+
 
 .nav-overlay {
   position: fixed;
@@ -1262,9 +1254,9 @@ body.login-page {
   transform-origin: center;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Post inner page — hero, overlay content, related grid, delete modal        */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 .post-inner-page {
   display: flex;
@@ -1821,9 +1813,9 @@ body.login-page {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* All Posts page — filter bar, list rows, dropdown, modal (from posts.css)   */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 .posts-page .topbar__brand--studio,
 .users-page .topbar__brand--studio,
@@ -1864,7 +1856,7 @@ body.login-page {
   border: 0;
 }
 
-/* (privacy migrated) */
+
 body.privacy-page,
 body.privacy-page *,
 body.privacy-page *::before,
@@ -2345,7 +2337,7 @@ body.privacy-page {
   }
 }
 
-/* faq migrated */
+
 body.faq-page * {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -2803,7 +2795,7 @@ body.faq-page {
   }
 }
 
-/* settings migrated */
+
 body.settings-app {
   margin: 0;
   min-height: 100%;
@@ -3287,7 +3279,7 @@ html[dir="rtl"] .settings-toggle[aria-checked="false"]::after {
   }
 }
 
-/* media migrated */
+
 body.ml-page *,
 body.ml-page *::before,
 body.ml-page *::after {
@@ -3914,9 +3906,7 @@ body.ml-page {
   }
 }
 
-/* =============================================================================
-   Pages migrated (from pages.html inline styles)
-   ============================================================================= */
+
 
 body.pg-page {
   --pg-bg: #0d0d0d;
@@ -4035,9 +4025,7 @@ body.pg-page {
 @media (max-width: 900px) { .pg-stats { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .pg-stats { grid-template-columns: 1fr; } .pg-table-wrap { display: none; } .pg-cards { display: flex; } }
 
-/* =============================================================================
-   Analytics page (analytics migrated)
-   ============================================================================= */
+
 
 *,
 *::before,
@@ -4622,9 +4610,7 @@ body.analytics-page {
   }
 }
 
-/* =============================================================================
-   Features page (migrated from features.html)
-   ============================================================================= */
+
 
 *,
 *::before,
@@ -6093,9 +6079,9 @@ body.fm-page {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Reports — dashboard strips, cards, details                                 */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 .reports-main {
   flex: 1;
@@ -6519,9 +6505,9 @@ body.fm-page {
   text-decoration: underline;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Add Page — editor, dashboard layout, RTL, design tokens                     */
-/* -------------------------------------------------------------------------- */
+
+
+
 
 .add-page {
   --add-bg: #181818;
@@ -7174,7 +7160,7 @@ html[dir="rtl"] .rte__editor {
   }
 }
 
-/* Add Page — media library picker overlay */
+
 .add-page__featured-toolbar {
   display: flex;
   flex-direction: row;
@@ -7396,7 +7382,7 @@ html[dir="rtl"] .rte__editor {
   }
 }
 
-/* Hide all scrollbars across the dashboard */
+
 * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -7408,9 +7394,7 @@ html[dir="rtl"] .rte__editor {
   display: none !important;
 }
 
-/* =============================================================================
-   Help page
-   ============================================================================= */
+
 
 body.help-page {
   margin: 0;
