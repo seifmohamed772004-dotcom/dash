@@ -1,5 +1,5 @@
 /**
- * Main app script — storage, login, overview, posts, post inner, nav overlay
+ * Main app script — storage, login, overview, posts, post inner, users, nav overlay
  */
 (function () {
   "use strict";
@@ -345,7 +345,7 @@
 
       var img = document.createElement("img");
       img.className = "subs-item__avatar";
-      img.src = user.avatarUrl || avatarUrl(name);
+      img.src = user.avatar || user.avatarUrl || avatarUrl(name);
       img.alt = "";
       img.width = 44;
       img.height = 44;
@@ -867,6 +867,533 @@
     renderPostsList();
   }
 
+  var USER_ROLES = ["Admin", "Editor", "User"];
+  var usersPageSize = 5;
+  var usersListPage = 1;
+  var usersOpenMenuId = null;
+  var usersPendingDeleteId = null;
+  var usersToastTimer = null;
+
+  function userRecordNewId() {
+    return "usr-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+  }
+
+  function formatUserListName(user, index) {
+    if (user.name && String(user.name).trim()) return String(user.name).trim();
+    var email = user.email || "user" + index;
+    var local = String(email).split("@")[0] || "user";
+    var parts = local.replace(/[._-]+/g, " ").split(" ").filter(Boolean);
+    if (parts.length === 0) return "User";
+    return parts
+      .map(function (p) {
+        return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+      })
+      .join(" ");
+  }
+
+  function hydrateUserRecords() {
+    var users = getData("users");
+    var changed = false;
+    users.forEach(function (u, i) {
+      if (!u.id) {
+        u.id = userRecordNewId();
+        changed = true;
+      }
+      if (!u.email) {
+        u.email = "user" + i + "@placeholder.local";
+        changed = true;
+      }
+      if (u.password === undefined || u.password === null || u.password === "") {
+        u.password = "changeme";
+        changed = true;
+      }
+      if (!u.name) {
+        u.name = formatUserListName(u, i);
+        changed = true;
+      }
+      if (!u.role) {
+        u.role =
+          u.email &&
+          String(u.email).toLowerCase() === DEFAULT_ADMIN_EMAIL.toLowerCase()
+            ? "Admin"
+            : "User";
+        changed = true;
+      }
+      if (!u.avatar) {
+        u.avatar = avatarUrl(u.name);
+        changed = true;
+      }
+      if (!u.bio) {
+        u.bio = "Team member — " + (u.role || "User") + " access.";
+        changed = true;
+      }
+      if (!u.date) {
+        u.date = u.createdAt
+          ? u.createdAt.slice(0, 10)
+          : new Date().toISOString().slice(0, 10);
+        changed = true;
+      }
+      if (!u.createdAt) {
+        u.createdAt = new Date().toISOString();
+        changed = true;
+      }
+    });
+    if (changed) saveData("users", users);
+  }
+
+  function seedDemoUsersIfNeeded() {
+    var users = getData("users");
+    if (users.length >= 8) return;
+    var demos = [
+      {
+        name: "Maya Chen",
+        email: "maya.chen@creestudios.com",
+        password: "demo123",
+        role: "Editor",
+        bio: "Brand strategist focused on motion and social campaigns.",
+        avatar: "https://picsum.photos/seed/maya/88/88",
+        date: "2026-02-12",
+      },
+      {
+        name: "Omar Ali",
+        email: "omar.ali@creestudios.com",
+        password: "demo123",
+        role: "User",
+        bio: "Product designer prototyping onboarding flows.",
+        avatar: "https://picsum.photos/seed/omar/88/88",
+        date: "2026-02-05",
+      },
+      {
+        name: "Sofia Reyes",
+        email: "sofia.reyes@creestudios.com",
+        password: "demo123",
+        role: "Editor",
+        bio: "UX/UI lead for SaaS dashboards and analytics.",
+        avatar: "https://picsum.photos/seed/sofia/88/88",
+        date: "2026-01-28",
+      },
+      {
+        name: "James Okonkwo",
+        email: "james.okonkwo@creestudios.com",
+        password: "demo123",
+        role: "User",
+        bio: "Front-end developer and design systems contributor.",
+        avatar: "https://picsum.photos/seed/james/88/88",
+        date: "2026-01-18",
+      },
+      {
+        name: "Lena Vogel",
+        email: "lena.vogel@creestudios.com",
+        password: "demo123",
+        role: "Editor",
+        bio: "Content strategist and marketing analytics.",
+        avatar: "https://picsum.photos/seed/lena/88/88",
+        date: "2026-01-08",
+      },
+      {
+        name: "Daniel Park",
+        email: "daniel.park@creestudios.com",
+        password: "demo123",
+        role: "User",
+        bio: "QA engineer and accessibility reviewer.",
+        avatar: "https://picsum.photos/seed/daniel/88/88",
+        date: "2025-12-20",
+      },
+      {
+        name: "Elena Rossi",
+        email: "elena.rossi@creestudios.com",
+        password: "demo123",
+        role: "Editor",
+        bio: "Motion designer and campaign storyteller.",
+        avatar: "https://picsum.photos/seed/elena/88/88",
+        date: "2025-11-10",
+      },
+      {
+        name: "Marcus Webb",
+        email: "marcus.webb@creestudios.com",
+        password: "demo123",
+        role: "User",
+        bio: "Infrastructure and release automation.",
+        avatar: "https://picsum.photos/seed/marcus/88/88",
+        date: "2025-10-22",
+      },
+    ];
+    var seen = {};
+    users.forEach(function (u) {
+      if (u.email) seen[String(u.email).toLowerCase()] = true;
+    });
+    demos.forEach(function (d) {
+      if (users.length >= 8) return;
+      if (seen[d.email.toLowerCase()]) return;
+      seen[d.email.toLowerCase()] = true;
+      users.push({
+        id: userRecordNewId(),
+        name: d.name,
+        email: d.email,
+        password: d.password,
+        role: d.role,
+        avatar: d.avatar,
+        bio: d.bio,
+        date: d.date,
+        createdAt: new Date(d.date + "T12:00:00.000Z").toISOString(),
+      });
+    });
+    saveData("users", users);
+  }
+
+  function ensureUserDashboardData() {
+    hydrateUserRecords();
+    seedDemoUsersIfNeeded();
+    hydrateUserRecords();
+  }
+
+  function filterUsersArray(all, q, dateVal, roleVal) {
+    q = (q || "").trim().toLowerCase();
+    dateVal = dateVal || "";
+    roleVal = roleVal || "";
+    return all.filter(function (u) {
+      var name = (u.name || "").toLowerCase();
+      var email = (u.email || "").toLowerCase();
+      if (q && name.indexOf(q) === -1 && email.indexOf(q) === -1) return false;
+      if (dateVal && (u.date || "").slice(0, 10) !== dateVal) return false;
+      if (roleVal && (u.role || "") !== roleVal) return false;
+      return true;
+    });
+  }
+
+  function filterUsersList() {
+    var nameEl = document.getElementById("users-filter-name");
+    var dateEl = document.getElementById("users-filter-date");
+    var roleEl = document.getElementById("users-filter-role");
+    return filterUsersArray(
+      getData("users"),
+      nameEl && nameEl.value,
+      dateEl && dateEl.value,
+      roleEl && roleEl.value
+    );
+  }
+
+  function applyUsersPagination(filtered) {
+    var total = filtered.length;
+    var pages = Math.max(1, Math.ceil(total / usersPageSize) || 1);
+    if (usersListPage > pages) usersListPage = pages;
+    if (usersListPage < 1) usersListPage = 1;
+    var start = (usersListPage - 1) * usersPageSize;
+    var slice = filtered.slice(start, start + usersPageSize);
+    return { slice: slice, total: total, pages: pages };
+  }
+
+  function closeAllUserMenus() {
+    document.querySelectorAll("#users-list .post-row__dropdown").forEach(function (el) {
+      el.hidden = true;
+    });
+    document.querySelectorAll("#users-list .post-row__kebab").forEach(function (btn) {
+      btn.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+    usersOpenMenuId = null;
+  }
+
+  function toggleUserMenu(userId, btn, dropdown) {
+    var isOpen = usersOpenMenuId === userId && !dropdown.hidden;
+    closeAllUserMenus();
+    if (!isOpen) {
+      dropdown.hidden = false;
+      btn.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      usersOpenMenuId = userId;
+    }
+  }
+
+  function showUsersToast(message) {
+    var el = document.getElementById("users-toast");
+    if (!el) return;
+    el.textContent = message;
+    el.hidden = false;
+    clearTimeout(usersToastTimer);
+    usersToastTimer = setTimeout(function () {
+      el.hidden = true;
+    }, 3200);
+  }
+
+  function openUserDeleteModal(userId) {
+    usersPendingDeleteId = userId;
+    var modal = document.getElementById("users-delete-modal");
+    if (modal) {
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      var confirmBtn = document.getElementById("users-delete-modal-confirm");
+      if (confirmBtn) confirmBtn.focus();
+    }
+  }
+
+  function closeUserDeleteModal() {
+    usersPendingDeleteId = null;
+    var modal = document.getElementById("users-delete-modal");
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  function deleteUserById(userId) {
+    var users = getData("users");
+    var next = users.filter(function (u) {
+      return u.id !== userId;
+    });
+    try {
+      saveData("users", next);
+      showUsersToast("User deleted");
+      closeAllUserMenus();
+      renderUsersList();
+    } catch (e) {
+      showUsersToast("Could not save changes. Check storage.");
+    }
+  }
+
+  function renderUsersList() {
+    var listEl = document.getElementById("users-list");
+    var emptyEl = document.getElementById("users-empty");
+    var infoEl = document.getElementById("users-page-info");
+    var prevBtn = document.getElementById("users-page-prev");
+    var nextBtn = document.getElementById("users-page-next");
+
+    if (!listEl || !emptyEl) return;
+
+    var filtered = filterUsersList();
+    var result = applyUsersPagination(filtered);
+    var slice = result.slice;
+
+    closeAllUserMenus();
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = "";
+      emptyEl.hidden = false;
+      if (infoEl) infoEl.textContent = "";
+      if (prevBtn) prevBtn.disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
+      return;
+    }
+
+    emptyEl.hidden = true;
+
+    if (infoEl) {
+      var start = (usersListPage - 1) * usersPageSize + 1;
+      var end = Math.min(usersListPage * usersPageSize, result.total);
+      infoEl.textContent =
+        "Showing " +
+        start +
+        "–" +
+        end +
+        " of " +
+        result.total +
+        (result.pages > 1
+          ? " · Page " + usersListPage + " / " + result.pages
+          : "");
+    }
+
+    if (prevBtn) prevBtn.disabled = usersListPage <= 1;
+    if (nextBtn) nextBtn.disabled = usersListPage >= result.pages;
+
+    listEl.innerHTML = "";
+    slice.forEach(function (user) {
+      var article = document.createElement("article");
+      article.className = "user-row";
+      article.setAttribute("data-user-id", user.id);
+
+      var img = document.createElement("img");
+      img.className = "user-row__avatar";
+      img.src = user.avatar || user.avatarUrl || avatarUrl(user.name);
+      img.alt = "";
+      img.width = 56;
+      img.height = 56;
+      img.loading = "lazy";
+
+      var body = document.createElement("div");
+      body.className = "user-row__body";
+
+      var h3 = document.createElement("h3");
+      h3.className = "user-row__name";
+      h3.textContent = user.name || "";
+
+      var p = document.createElement("p");
+      p.className = "user-row__desc";
+      p.textContent = user.bio || "";
+
+      var time = document.createElement("time");
+      time.className = "user-row__date";
+      time.dateTime = user.date || "";
+      time.textContent = formatPostDisplayDate(user.date);
+
+      body.appendChild(h3);
+      body.appendChild(p);
+      body.appendChild(time);
+
+      var actions = document.createElement("div");
+      actions.className = "post-row__actions";
+
+      var kebab = document.createElement("button");
+      kebab.type = "button";
+      kebab.className = "post-row__kebab";
+      kebab.setAttribute("aria-label", "User actions");
+      kebab.setAttribute("aria-expanded", "false");
+      kebab.setAttribute("aria-haspopup", "true");
+      kebab.innerHTML =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+
+      var dropdown = document.createElement("div");
+      dropdown.className = "post-row__dropdown";
+      dropdown.hidden = true;
+      dropdown.setAttribute("role", "menu");
+
+      var btnView = document.createElement("button");
+      btnView.type = "button";
+      btnView.setAttribute("role", "menuitem");
+      btnView.textContent = "View";
+      btnView.addEventListener("click", function () {
+        window.location.href =
+          "user-details.html?id=" + encodeURIComponent(user.id);
+      });
+
+      var aEdit = document.createElement("a");
+      aEdit.href = "edit-user.html?id=" + encodeURIComponent(user.id);
+      aEdit.setAttribute("role", "menuitem");
+      aEdit.textContent = "Edit";
+
+      var btnDel = document.createElement("button");
+      btnDel.type = "button";
+      btnDel.className = "posts-menu-danger";
+      btnDel.setAttribute("role", "menuitem");
+      btnDel.textContent = "Delete";
+      btnDel.addEventListener("click", function () {
+        closeAllUserMenus();
+        openUserDeleteModal(user.id);
+      });
+
+      dropdown.appendChild(btnView);
+      dropdown.appendChild(aEdit);
+      dropdown.appendChild(btnDel);
+
+      dropdown.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+
+      kebab.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleUserMenu(user.id, kebab, dropdown);
+      });
+
+      actions.appendChild(kebab);
+      actions.appendChild(dropdown);
+
+      article.appendChild(img);
+      article.appendChild(body);
+      article.appendChild(actions);
+      listEl.appendChild(article);
+    });
+  }
+
+  function populateUserRoleSelect() {
+    var sel = document.getElementById("users-filter-role");
+    if (!sel) return;
+    sel.innerHTML = "";
+    var opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "All roles";
+    sel.appendChild(opt0);
+    USER_ROLES.forEach(function (r) {
+      var o = document.createElement("option");
+      o.value = r;
+      o.textContent = r;
+      sel.appendChild(o);
+    });
+  }
+
+  function bindUserFilters() {
+    var nameEl = document.getElementById("users-filter-name");
+    var dateEl = document.getElementById("users-filter-date");
+    var roleEl = document.getElementById("users-filter-role");
+
+    function onFilterChange() {
+      usersListPage = 1;
+      renderUsersList();
+    }
+
+    if (nameEl) nameEl.addEventListener("input", onFilterChange);
+    if (dateEl) dateEl.addEventListener("change", onFilterChange);
+    if (roleEl) roleEl.addEventListener("change", onFilterChange);
+  }
+
+  function bindUserPagination() {
+    var prevBtn = document.getElementById("users-page-prev");
+    var nextBtn = document.getElementById("users-page-next");
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function () {
+        if (usersListPage > 1) {
+          usersListPage--;
+          renderUsersList();
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        var filtered = filterUsersList();
+        var pages = Math.max(1, Math.ceil(filtered.length / usersPageSize));
+        if (usersListPage < pages) {
+          usersListPage++;
+          renderUsersList();
+        }
+      });
+    }
+  }
+
+  function bindUsersGlobalCloseMenus() {
+    document.addEventListener("click", function () {
+      closeAllUserMenus();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeAllUserMenus();
+    });
+  }
+
+  function bindUserDeleteModal() {
+    var modal = document.getElementById("users-delete-modal");
+    var backdrop = document.getElementById("users-delete-modal-backdrop");
+    var cancel = document.getElementById("users-delete-modal-cancel");
+    var confirm = document.getElementById("users-delete-modal-confirm");
+
+    function close() {
+      closeUserDeleteModal();
+    }
+
+    if (cancel) cancel.addEventListener("click", close);
+    if (backdrop) backdrop.addEventListener("click", close);
+    if (confirm) {
+      confirm.addEventListener("click", function () {
+        if (usersPendingDeleteId) deleteUserById(usersPendingDeleteId);
+        closeUserDeleteModal();
+      });
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (modal && !modal.hidden) {
+        e.preventDefault();
+        close();
+      }
+    });
+  }
+
+  function initUsersPage() {
+    if (!document.getElementById("users-list")) return;
+
+    populateUserRoleSelect();
+    bindUserFilters();
+    bindUserPagination();
+    bindUsersGlobalCloseMenus();
+    bindUserDeleteModal();
+    renderUsersList();
+  }
+
   function getSessionDisplayName() {
     try {
       var raw = localStorage.getItem("currentUser");
@@ -1364,10 +1891,12 @@
 
   function initApp() {
     ensureDefaultAdminUser();
+    ensureUserDashboardData();
     initLoginPage();
     initOverviewPage();
     initPostsPage();
     initPostInnerPage();
+    initUsersPage();
     injectNavOverlay();
   }
 

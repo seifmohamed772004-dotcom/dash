@@ -1806,14 +1806,16 @@ body.login-page {
 /* All Posts page — filter bar, list rows, dropdown, modal (from posts.css)   */
 /* -------------------------------------------------------------------------- */
 
-.posts-page .topbar__brand--studio {
+.posts-page .topbar__brand--studio,
+.users-page .topbar__brand--studio {
   display: inline-flex;
   align-items: center;
   gap: 0.1em;
   letter-spacing: 0.12em;
 }
 
-.posts-page .topbar__brand-mark {
+.posts-page .topbar__brand-mark,
+.users-page .topbar__brand-mark {
   display: inline-block;
   width: 9px;
   height: 9px;
@@ -2006,6 +2008,75 @@ body.login-page {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.user-row {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  padding: 1.15rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background var(--transition);
+}
+
+.user-row:last-child {
+  border-bottom: none;
+}
+
+.user-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.user-row__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+  background: #222;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.users-page .user-row:hover .user-row__avatar {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px rgba(94, 179, 176, 0.22);
+}
+
+.user-row__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.user-row__name {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.user-row__desc {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.user-row__date {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.38);
+}
+
 .post-row__thumb {
   width: 112px;
   height: 72px;
@@ -2179,7 +2250,7 @@ body.login-page {
   text-decoration: underline;
 }
 
-.posts-page .modal {
+:is(.posts-page, .users-page) .modal {
   position: fixed;
   inset: 0;
   z-index: 10000;
@@ -2189,18 +2260,18 @@ body.login-page {
   padding: 1.5rem;
 }
 
-.posts-page .modal[hidden] {
+:is(.posts-page, .users-page) .modal[hidden] {
   display: none;
 }
 
-.posts-page .modal__backdrop {
+:is(.posts-page, .users-page) .modal__backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
 }
 
-.posts-page .modal__panel {
+:is(.posts-page, .users-page) .modal__panel {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -2223,14 +2294,14 @@ body.login-page {
   }
 }
 
-.posts-page .modal__title {
+:is(.posts-page, .users-page) .modal__title {
   margin: 0 0 0.5rem;
   font-family: var(--font-title);
   font-size: 1.15rem;
   color: #fff;
 }
 
-.posts-page .modal__text {
+:is(.posts-page, .users-page) .modal__text {
   margin: 0 0 1.25rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -2238,13 +2309,13 @@ body.login-page {
   line-height: 1.5;
 }
 
-.posts-page .modal__actions {
+:is(.posts-page, .users-page) .modal__actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
 }
 
-.posts-page .modal__btn {
+:is(.posts-page, .users-page) .modal__btn {
   padding: 0.55rem 1.1rem;
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -2254,23 +2325,23 @@ body.login-page {
   transition: background var(--transition), color var(--transition);
 }
 
-.posts-page .modal__btn--ghost {
+:is(.posts-page, .users-page) .modal__btn--ghost {
   border: 1px solid var(--color-border);
   background: transparent;
   color: #fff;
 }
 
-.posts-page .modal__btn--ghost:hover {
+:is(.posts-page, .users-page) .modal__btn--ghost:hover {
   background: var(--color-bg-elevated);
 }
 
-.posts-page .modal__btn--danger {
+:is(.posts-page, .users-page) .modal__btn--danger {
   border: 1px solid rgba(232, 93, 93, 0.5);
   background: rgba(232, 93, 93, 0.12);
   color: #ffb4b4;
 }
 
-.posts-page .modal__btn--danger:hover {
+:is(.posts-page, .users-page) .modal__btn--danger:hover {
   background: rgba(232, 93, 93, 0.22);
 }
 
@@ -2295,7 +2366,8 @@ body.login-page {
     justify-content: flex-start;
   }
 
-  .post-row {
+  .post-row,
+  .user-row {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
   }
@@ -2304,6 +2376,14 @@ body.login-page {
     width: 100%;
     height: 180px;
     max-width: 100%;
+  }
+
+  .user-row__avatar {
+    width: min(120px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    justify-self: center;
   }
 
   .post-row__actions {
