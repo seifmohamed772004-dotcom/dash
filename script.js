@@ -1,5 +1,5 @@
 /**
- * Main app script — storage, login, overview, posts, post inner, users, nav overlay
+ * Main app script — storage, login, overview, posts, post inner, users, notifications, nav overlay
  */
 (function () {
   "use strict";
@@ -1394,6 +1394,510 @@
     renderUsersList();
   }
 
+  var NOTIFICATION_TYPES = ["info", "success", "warning"];
+  var notificationsPageSize = 5;
+  var notificationsListPage = 1;
+  var notificationsOpenMenuId = null;
+  var notificationsPendingDeleteId = null;
+  var notificationsToastTimer = null;
+
+  function notificationNewId() {
+    return "ntf-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+  }
+
+  function ensureDummyNotifications() {
+    if (localStorage.getItem("notifications") !== null) return;
+
+    var now = new Date();
+    var demo = [
+      {
+        id: notificationNewId(),
+        title: "New user registered",
+        message: "Maya Chen has joined the team and completed onboarding.",
+        type: "success",
+        avatar: "https://picsum.photos/seed/ntf1/88/88",
+        date: "2026-04-08",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "Post deleted successfully",
+        message: "A draft post was removed from the library as requested.",
+        type: "info",
+        avatar: "",
+        date: "2026-04-07",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "New comment received",
+        message: "Someone left feedback on your latest project update.",
+        type: "info",
+        avatar: "https://picsum.photos/seed/ntf3/88/88",
+        date: "2026-04-06",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "Storage warning",
+        message: "Media library is approaching 80% capacity. Consider archiving.",
+        type: "warning",
+        avatar: "",
+        date: "2026-04-05",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "Backup completed",
+        message: "Dashboard data was backed up successfully overnight.",
+        type: "success",
+        avatar: "",
+        date: "2026-04-04",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "Security alert",
+        message: "Unusual login attempt blocked from an unknown device.",
+        type: "warning",
+        avatar: "https://picsum.photos/seed/ntf6/88/88",
+        date: "2026-04-03",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "Weekly summary",
+        message: "Your posts received 24% more views than last week.",
+        type: "info",
+        avatar: "",
+        date: "2026-04-02",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: notificationNewId(),
+        title: "Invite accepted",
+        message: "A collaborator accepted your invite to the workspace.",
+        type: "success",
+        avatar: "https://picsum.photos/seed/ntf8/88/88",
+        date: "2026-04-01",
+        createdAt: now.toISOString(),
+      },
+    ];
+
+    try {
+      saveData("notifications", demo);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function normalizeNotificationType(t) {
+    var s = String(t || "").toLowerCase();
+    if (NOTIFICATION_TYPES.indexOf(s) !== -1) return s;
+    return "info";
+  }
+
+  function notificationIconSvg(type) {
+    var t = normalizeNotificationType(type);
+    if (t === "success") {
+      return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    if (t === "warning") {
+      return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.2L2.7 18c-.5 1 .2 2 1.3 2h16c1.1 0 1.8-1 1.3-2L13.7 3.2c-.5-1-1.8-1-2.4 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 16v-5M12 8h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  }
+
+  function filterNotificationsArray(all, q, dateVal, typeVal) {
+    q = (q || "").trim().toLowerCase();
+    dateVal = dateVal || "";
+    typeVal = typeVal || "";
+    return all.filter(function (n) {
+      var title = (n.title || "").toLowerCase();
+      var message = (n.message || "").toLowerCase();
+      if (q && title.indexOf(q) === -1 && message.indexOf(q) === -1) return false;
+      if (dateVal && (n.date || "").slice(0, 10) !== dateVal) return false;
+      if (typeVal && normalizeNotificationType(n.type) !== typeVal) return false;
+      return true;
+    });
+  }
+
+  function filterNotificationsList() {
+    var nameEl = document.getElementById("notifications-filter-name");
+    var dateEl = document.getElementById("notifications-filter-date");
+    var typeEl = document.getElementById("notifications-filter-type");
+    return filterNotificationsArray(
+      getData("notifications"),
+      nameEl && nameEl.value,
+      dateEl && dateEl.value,
+      typeEl && typeEl.value
+    );
+  }
+
+  function applyNotificationsPagination(filtered) {
+    var total = filtered.length;
+    var pages = Math.max(1, Math.ceil(total / notificationsPageSize) || 1);
+    if (notificationsListPage > pages) notificationsListPage = pages;
+    if (notificationsListPage < 1) notificationsListPage = 1;
+    var start = (notificationsListPage - 1) * notificationsPageSize;
+    var slice = filtered.slice(start, start + notificationsPageSize);
+    return { slice: slice, total: total, pages: pages };
+  }
+
+  function closeAllNotificationMenus() {
+    document.querySelectorAll("#notifications-list .post-row__dropdown").forEach(function (el) {
+      el.hidden = true;
+    });
+    document.querySelectorAll("#notifications-list .post-row__kebab").forEach(function (btn) {
+      btn.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+    notificationsOpenMenuId = null;
+  }
+
+  function toggleNotificationMenu(notificationId, btn, dropdown) {
+    var isOpen = notificationsOpenMenuId === notificationId && !dropdown.hidden;
+    closeAllNotificationMenus();
+    if (!isOpen) {
+      dropdown.hidden = false;
+      btn.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      notificationsOpenMenuId = notificationId;
+    }
+  }
+
+  function showNotificationsToast(message) {
+    var el = document.getElementById("notifications-toast");
+    if (!el) return;
+    el.textContent = message;
+    el.hidden = false;
+    clearTimeout(notificationsToastTimer);
+    notificationsToastTimer = setTimeout(function () {
+      el.hidden = true;
+    }, 3200);
+  }
+
+  function openNotificationDeleteModal(notificationId) {
+    notificationsPendingDeleteId = notificationId;
+    var modal = document.getElementById("notifications-delete-modal");
+    if (modal) {
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      var confirmBtn = document.getElementById("notifications-delete-modal-confirm");
+      if (confirmBtn) confirmBtn.focus();
+    }
+  }
+
+  function closeNotificationDeleteModal() {
+    notificationsPendingDeleteId = null;
+    var modal = document.getElementById("notifications-delete-modal");
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  function deleteNotificationById(notificationId) {
+    var list = getData("notifications");
+    var next = list.filter(function (n) {
+      return n.id !== notificationId;
+    });
+    try {
+      saveData("notifications", next);
+      showNotificationsToast("Notification deleted");
+      closeAllNotificationMenus();
+      renderNotificationsList();
+    } catch (e) {
+      showNotificationsToast("Could not save changes. Check storage.");
+    }
+  }
+
+  function renderNotificationsList() {
+    var listEl = document.getElementById("notifications-list");
+    var emptyEl = document.getElementById("notifications-empty");
+    var infoEl = document.getElementById("notifications-page-info");
+    var prevBtn = document.getElementById("notifications-page-prev");
+    var nextBtn = document.getElementById("notifications-page-next");
+
+    if (!listEl || !emptyEl) return;
+
+    var filtered = filterNotificationsList();
+    var result = applyNotificationsPagination(filtered);
+    var slice = result.slice;
+
+    closeAllNotificationMenus();
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = "";
+      emptyEl.hidden = false;
+      if (infoEl) infoEl.textContent = "";
+      if (prevBtn) prevBtn.disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
+      return;
+    }
+
+    emptyEl.hidden = true;
+
+    if (infoEl) {
+      var start = (notificationsListPage - 1) * notificationsPageSize + 1;
+      var end = Math.min(notificationsListPage * notificationsPageSize, result.total);
+      infoEl.textContent =
+        "Showing " +
+        start +
+        "–" +
+        end +
+        " of " +
+        result.total +
+        (result.pages > 1
+          ? " · Page " + notificationsListPage + " / " + result.pages
+          : "");
+    }
+
+    if (prevBtn) prevBtn.disabled = notificationsListPage <= 1;
+    if (nextBtn) nextBtn.disabled = notificationsListPage >= result.pages;
+
+    listEl.innerHTML = "";
+    slice.forEach(function (n) {
+      var article = document.createElement("article");
+      article.className = "notif-row";
+      article.setAttribute("data-notification-id", n.id);
+      article.setAttribute(
+        "data-notif-type",
+        normalizeNotificationType(n.type)
+      );
+
+      var media = document.createElement("div");
+      media.className = "notif-row__media";
+
+      if (n.avatar && String(n.avatar).trim()) {
+        var img = document.createElement("img");
+        img.className = "notif-row__avatar";
+        img.src = n.avatar;
+        img.alt = "";
+        img.width = 56;
+        img.height = 56;
+        img.loading = "lazy";
+        media.appendChild(img);
+      } else {
+        var iconWrap = document.createElement("div");
+        iconWrap.className =
+          "notif-row__icon notif-row__icon--" +
+          normalizeNotificationType(n.type);
+        iconWrap.setAttribute("aria-hidden", "true");
+        iconWrap.innerHTML = notificationIconSvg(n.type);
+        media.appendChild(iconWrap);
+      }
+
+      var body = document.createElement("div");
+      body.className = "notif-row__body";
+
+      var h3 = document.createElement("h3");
+      h3.className = "notif-row__title";
+      h3.textContent = n.title || "Notification";
+
+      var p = document.createElement("p");
+      p.className = "notif-row__desc";
+      p.textContent = n.message || "";
+
+      var time = document.createElement("time");
+      time.className = "notif-row__date";
+      time.dateTime = n.date || "";
+      time.textContent = formatPostDisplayDate(n.date);
+
+      body.appendChild(h3);
+      body.appendChild(p);
+      body.appendChild(time);
+
+      var actions = document.createElement("div");
+      actions.className = "post-row__actions";
+
+      var kebab = document.createElement("button");
+      kebab.type = "button";
+      kebab.className = "post-row__kebab";
+      kebab.setAttribute("aria-label", "Notification actions");
+      kebab.setAttribute("aria-expanded", "false");
+      kebab.setAttribute("aria-haspopup", "true");
+      kebab.innerHTML =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+
+      var dropdown = document.createElement("div");
+      dropdown.className = "post-row__dropdown";
+      dropdown.hidden = true;
+      dropdown.setAttribute("role", "menu");
+
+      var btnView = document.createElement("button");
+      btnView.type = "button";
+      btnView.setAttribute("role", "menuitem");
+      btnView.textContent = "View";
+      btnView.addEventListener("click", function () {
+        closeAllNotificationMenus();
+        var full =
+          (n.title || "") + (n.message ? " — " + n.message : "");
+        showNotificationsToast(full);
+      });
+
+      var btnDel = document.createElement("button");
+      btnDel.type = "button";
+      btnDel.className = "posts-menu-danger";
+      btnDel.setAttribute("role", "menuitem");
+      btnDel.textContent = "Delete";
+      btnDel.addEventListener("click", function () {
+        closeAllNotificationMenus();
+        openNotificationDeleteModal(n.id);
+      });
+
+      dropdown.appendChild(btnView);
+      dropdown.appendChild(btnDel);
+
+      dropdown.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+
+      kebab.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleNotificationMenu(n.id, kebab, dropdown);
+      });
+
+      actions.appendChild(kebab);
+      actions.appendChild(dropdown);
+
+      article.appendChild(media);
+      article.appendChild(body);
+      article.appendChild(actions);
+      listEl.appendChild(article);
+    });
+  }
+
+  function populateNotificationTypeSelect() {
+    var sel = document.getElementById("notifications-filter-type");
+    if (!sel) return;
+    sel.innerHTML = "";
+    var opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "All types";
+    sel.appendChild(opt0);
+    NOTIFICATION_TYPES.forEach(function (t) {
+      var o = document.createElement("option");
+      o.value = t;
+      o.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+      sel.appendChild(o);
+    });
+  }
+
+  function bindNotificationFilters() {
+    var nameEl = document.getElementById("notifications-filter-name");
+    var dateEl = document.getElementById("notifications-filter-date");
+    var typeEl = document.getElementById("notifications-filter-type");
+
+    function onFilterChange() {
+      notificationsListPage = 1;
+      renderNotificationsList();
+    }
+
+    if (nameEl) nameEl.addEventListener("input", onFilterChange);
+    if (dateEl) dateEl.addEventListener("change", onFilterChange);
+    if (typeEl) typeEl.addEventListener("change", onFilterChange);
+  }
+
+  function bindNotificationPagination() {
+    var prevBtn = document.getElementById("notifications-page-prev");
+    var nextBtn = document.getElementById("notifications-page-next");
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function () {
+        if (notificationsListPage > 1) {
+          notificationsListPage--;
+          renderNotificationsList();
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        var filtered = filterNotificationsList();
+        var pages = Math.max(
+          1,
+          Math.ceil(filtered.length / notificationsPageSize)
+        );
+        if (notificationsListPage < pages) {
+          notificationsListPage++;
+          renderNotificationsList();
+        }
+      });
+    }
+  }
+
+  function bindNotificationsGlobalCloseMenus() {
+    document.addEventListener("click", function () {
+      closeAllNotificationMenus();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeAllNotificationMenus();
+    });
+  }
+
+  function bindNotificationDeleteModal() {
+    var modal = document.getElementById("notifications-delete-modal");
+    var backdrop = document.getElementById("notifications-delete-modal-backdrop");
+    var cancel = document.getElementById("notifications-delete-modal-cancel");
+    var confirm = document.getElementById("notifications-delete-modal-confirm");
+
+    function close() {
+      closeNotificationDeleteModal();
+    }
+
+    if (cancel) cancel.addEventListener("click", close);
+    if (backdrop) backdrop.addEventListener("click", close);
+    if (confirm) {
+      confirm.addEventListener("click", function () {
+        if (notificationsPendingDeleteId) {
+          deleteNotificationById(notificationsPendingDeleteId);
+        }
+        closeNotificationDeleteModal();
+      });
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (modal && !modal.hidden) {
+        e.preventDefault();
+        close();
+      }
+    });
+  }
+
+  function initNotificationsPage() {
+    if (!document.getElementById("notifications-list")) return;
+
+    ensureDummyNotifications();
+    populateNotificationTypeSelect();
+    bindNotificationFilters();
+    bindNotificationPagination();
+    bindNotificationsGlobalCloseMenus();
+    bindNotificationDeleteModal();
+    renderNotificationsList();
+  }
+
+  window.AppNotifications = {
+    push: function (item) {
+      var list = getData("notifications");
+      var row = {
+        id: notificationNewId(),
+        title: (item && item.title) || "Notice",
+        message: (item && item.message) || "",
+        type: normalizeNotificationType((item && item.type) || "info"),
+        avatar: (item && item.avatar) || "",
+        date:
+          (item && item.date) || new Date().toISOString().slice(0, 10),
+        createdAt: new Date().toISOString(),
+      };
+      list.unshift(row);
+      try {
+        saveData("notifications", list);
+      } catch (e) {
+        return false;
+      }
+      return true;
+    },
+  };
+
   function getSessionDisplayName() {
     try {
       var raw = localStorage.getItem("currentUser");
@@ -1897,6 +2401,7 @@
     initPostsPage();
     initPostInnerPage();
     initUsersPage();
+    initNotificationsPage();
     injectNavOverlay();
   }
 

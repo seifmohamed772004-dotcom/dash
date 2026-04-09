@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notifications</title>
+    <title>Notifications — Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,9 +12,11 @@
     />
     <link rel="stylesheet" href="stylesheet.css" />
   </head>
-  <body class="dashboard-page">
+  <body class="dashboard-page notifications-page">
     <header class="topbar">
-      <a href="overview.html" class="topbar__brand">CREESTUDIOS</a>
+      <a href="overview.html" class="topbar__brand topbar__brand--studio">
+        CREE<span class="topbar__brand-mark" aria-hidden="true"></span>STUDIOS
+      </a>
       <button
         type="button"
         class="topbar__burger"
@@ -29,10 +31,99 @@
         <span class="topbar__burger-line" aria-hidden="true"></span>
       </button>
     </header>
-    <main class="page-placeholder">
-      <h1>Notifications</h1>
-      <p>Placeholder — add notifications content here.</p>
+
+    <main class="posts-main">
+      <div class="posts-filter-bar" role="toolbar" aria-label="Filter notifications">
+        <div class="posts-filter-bar__segment posts-filter-bar__segment--category">
+          <label class="visually-hidden" for="notifications-filter-type">Type</label>
+          <span class="posts-filter-bar__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <select id="notifications-filter-type" class="posts-filter-bar__select">
+            <option value="">All types</option>
+          </select>
+        </div>
+        <div class="posts-filter-bar__segment">
+          <label class="visually-hidden" for="notifications-filter-name">Filter by name</label>
+          <input
+            type="search"
+            id="notifications-filter-name"
+            class="posts-filter-bar__input"
+            placeholder="Filter by Name"
+            autocomplete="off"
+          />
+        </div>
+        <div class="posts-filter-bar__segment">
+          <label class="visually-hidden" for="notifications-filter-date">Filter by date</label>
+          <input
+            type="date"
+            id="notifications-filter-date"
+            class="posts-filter-bar__input posts-filter-bar__input--date"
+          />
+        </div>
+        <div class="posts-filter-bar__segment posts-filter-bar__segment--nav">
+          <button
+            type="button"
+            class="posts-filter-bar__page-btn"
+            id="notifications-page-prev"
+            aria-label="Previous page"
+          >
+            Page Left
+          </button>
+        </div>
+        <div class="posts-filter-bar__segment posts-filter-bar__segment--nav">
+          <button
+            type="button"
+            class="posts-filter-bar__page-btn"
+            id="notifications-page-next"
+            aria-label="Next page"
+          >
+            Page Right
+          </button>
+        </div>
+      </div>
+
+      <p class="posts-page-info" id="notifications-page-info" aria-live="polite"></p>
+
+      <div id="notifications-toast" class="posts-toast" role="status" aria-live="polite" hidden></div>
+
+      <div class="posts-list" id="notifications-list" role="feed" aria-label="Notifications"></div>
+
+      <div class="posts-empty" id="notifications-empty" hidden>
+        <p class="posts-empty__title">No notifications available</p>
+      </div>
     </main>
+
+    <div
+      class="modal modal--delete"
+      id="notifications-delete-modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="notifications-delete-modal-title"
+    >
+      <div class="modal__backdrop" id="notifications-delete-modal-backdrop"></div>
+      <div class="modal__panel">
+        <h2 class="modal__title" id="notifications-delete-modal-title">Delete notification?</h2>
+        <p class="modal__text">Delete this notification?</p>
+        <div class="modal__actions">
+          <button type="button" class="modal__btn modal__btn--ghost" id="notifications-delete-modal-cancel">
+            Cancel
+          </button>
+          <button type="button" class="modal__btn modal__btn--danger" id="notifications-delete-modal-confirm">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div id="nav-overlay-container"></div>
     <script src="script.js"></script>

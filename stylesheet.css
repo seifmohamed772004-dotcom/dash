@@ -1807,7 +1807,8 @@ body.login-page {
 /* -------------------------------------------------------------------------- */
 
 .posts-page .topbar__brand--studio,
-.users-page .topbar__brand--studio {
+.users-page .topbar__brand--studio,
+.notifications-page .topbar__brand--studio {
   display: inline-flex;
   align-items: center;
   gap: 0.1em;
@@ -1815,7 +1816,8 @@ body.login-page {
 }
 
 .posts-page .topbar__brand-mark,
-.users-page .topbar__brand-mark {
+.users-page .topbar__brand-mark,
+.notifications-page .topbar__brand-mark {
   display: inline-block;
   width: 9px;
   height: 9px;
@@ -2077,6 +2079,115 @@ body.login-page {
   color: rgba(255, 255, 255, 0.38);
 }
 
+.notif-row {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  padding: 1.15rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background var(--transition);
+}
+
+.notif-row:last-child {
+  border-bottom: none;
+}
+
+.notif-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notif-row__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+}
+
+.notif-row__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+  background: #222;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.notifications-page .notif-row:hover .notif-row__avatar {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px rgba(94, 179, 176, 0.18);
+}
+
+.notif-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.notifications-page .notif-row:hover .notif-row__icon {
+  transform: scale(1.06);
+}
+
+.notif-row__icon--info {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #7ab8ff;
+}
+
+.notif-row__icon--success {
+  background: rgba(94, 179, 176, 0.15);
+  border-color: rgba(94, 179, 176, 0.45);
+  color: #8ee0dc;
+}
+
+.notif-row__icon--warning {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf6b;
+}
+
+.notif-row__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.notif-row__title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1rem, 2.5vw, 1.12rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.notif-row__desc {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notif-row__date {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.38);
+}
+
 .post-row__thumb {
   width: 112px;
   height: 72px;
@@ -2250,7 +2361,7 @@ body.login-page {
   text-decoration: underline;
 }
 
-:is(.posts-page, .users-page) .modal {
+:is(.posts-page, .users-page, .notifications-page) .modal {
   position: fixed;
   inset: 0;
   z-index: 10000;
@@ -2260,18 +2371,18 @@ body.login-page {
   padding: 1.5rem;
 }
 
-:is(.posts-page, .users-page) .modal[hidden] {
+:is(.posts-page, .users-page, .notifications-page) .modal[hidden] {
   display: none;
 }
 
-:is(.posts-page, .users-page) .modal__backdrop {
+:is(.posts-page, .users-page, .notifications-page) .modal__backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
 }
 
-:is(.posts-page, .users-page) .modal__panel {
+:is(.posts-page, .users-page, .notifications-page) .modal__panel {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -2294,14 +2405,14 @@ body.login-page {
   }
 }
 
-:is(.posts-page, .users-page) .modal__title {
+:is(.posts-page, .users-page, .notifications-page) .modal__title {
   margin: 0 0 0.5rem;
   font-family: var(--font-title);
   font-size: 1.15rem;
   color: #fff;
 }
 
-:is(.posts-page, .users-page) .modal__text {
+:is(.posts-page, .users-page, .notifications-page) .modal__text {
   margin: 0 0 1.25rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -2309,13 +2420,13 @@ body.login-page {
   line-height: 1.5;
 }
 
-:is(.posts-page, .users-page) .modal__actions {
+:is(.posts-page, .users-page, .notifications-page) .modal__actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
 }
 
-:is(.posts-page, .users-page) .modal__btn {
+:is(.posts-page, .users-page, .notifications-page) .modal__btn {
   padding: 0.55rem 1.1rem;
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -2325,23 +2436,23 @@ body.login-page {
   transition: background var(--transition), color var(--transition);
 }
 
-:is(.posts-page, .users-page) .modal__btn--ghost {
+:is(.posts-page, .users-page, .notifications-page) .modal__btn--ghost {
   border: 1px solid var(--color-border);
   background: transparent;
   color: #fff;
 }
 
-:is(.posts-page, .users-page) .modal__btn--ghost:hover {
+:is(.posts-page, .users-page, .notifications-page) .modal__btn--ghost:hover {
   background: var(--color-bg-elevated);
 }
 
-:is(.posts-page, .users-page) .modal__btn--danger {
+:is(.posts-page, .users-page, .notifications-page) .modal__btn--danger {
   border: 1px solid rgba(232, 93, 93, 0.5);
   background: rgba(232, 93, 93, 0.12);
   color: #ffb4b4;
 }
 
-:is(.posts-page, .users-page) .modal__btn--danger:hover {
+:is(.posts-page, .users-page, .notifications-page) .modal__btn--danger:hover {
   background: rgba(232, 93, 93, 0.22);
 }
 
@@ -2367,7 +2478,8 @@ body.login-page {
   }
 
   .post-row,
-  .user-row {
+  .user-row,
+  .notif-row {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
   }
@@ -2384,6 +2496,22 @@ body.login-page {
     aspect-ratio: 1;
     margin: 0 auto;
     justify-self: center;
+  }
+
+  .notif-row__media {
+    justify-self: center;
+  }
+
+  .notif-row__avatar {
+    width: min(120px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .notif-row__icon {
+    width: min(100px, 100%);
+    height: auto;
+    aspect-ratio: 1;
   }
 
   .post-row__actions {
