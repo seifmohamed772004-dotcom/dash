@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Page — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="dashboard-page add-page">
+    <header class="topbar add-page__topbar">
+      <a href="overview.html" class="topbar__brand topbar__brand--studio">
+        CREE<span class="topbar__brand-mark" aria-hidden="true"></span>STUDIOS
+      </a>
+      <div class="add-page__topbar-right">
+        <button type="button" class="add-page__lang-btn" id="add-page-lang-toggle" aria-pressed="false">
+          EN
+        </button>
+        <button
+          type="button"
+          class="topbar__burger"
+          id="nav-open"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="nav-overlay"
+          aria-haspopup="dialog"
+        >
+          <span class="topbar__burger-line" aria-hidden="true"></span>
+          <span class="topbar__burger-line" aria-hidden="true"></span>
+          <span class="topbar__burger-line" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="add-page__wrap">
+      <section class="add-page__masthead" aria-labelledby="add-page-heading">
+        <h1 id="add-page-heading" class="add-page__title">
+          ADD <span class="add-page__title-accent">PAGE</span>
+        </h1>
+        <div class="add-page__masthead-actions">
+          <button type="button" class="add-page__btn add-page__btn--ghost" id="add-page-save-draft">
+            <span class="add-page__btn-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path d="M17 21v-8H7v8M7 3v5h8" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </span>
+            Save Draft
+          </button>
+          <button type="button" class="add-page__btn add-page__btn--ghost" id="add-page-preview">
+            <span class="add-page__btn-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </span>
+            Preview
+          </button>
+          <button type="button" class="add-page__btn add-page__btn--primary" id="add-page-publish">
+            <span class="add-page__btn-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            Publish
+          </button>
+        </div>
+      </section>
+
+      <form id="add-page-form" class="add-page__form" novalidate>
+        <div class="add-page__grid">
+          <div class="add-page__col add-page__col--main">
+            <div class="add-page__card">
+              <label class="add-page__field-label" for="add-page-title">Post title</label>
+              <input
+                type="text"
+                id="add-page-title"
+                name="title"
+                class="add-page__input add-page__input--title"
+                placeholder="ENTER POST TITLE..."
+                autocomplete="off"
+              />
+
+              <label class="add-page__field-label" for="add-page-subtitle">Subtitle / excerpt</label>
+              <input
+                type="text"
+                id="add-page-subtitle"
+                name="subtitle"
+                class="add-page__input"
+                placeholder="Short subtitle..."
+                autocomplete="off"
+              />
+
+              <label class="add-page__field-label" for="add-page-excerpt">Excerpt (list preview)</label>
+              <input
+                type="text"
+                id="add-page-excerpt"
+                name="excerpt"
+                class="add-page__input"
+                placeholder="Optional excerpt for cards..."
+                autocomplete="off"
+              />
+
+              <div class="rte" id="rte-root">
+                <p class="add-page__field-label">Content</p>
+                <div class="rte__toolbar" id="rte-toolbar" role="toolbar" aria-label="Formatting">
+                  <div class="rte__toolbar-group">
+                    <button type="button" class="rte__tool" data-cmd="bold" title="Bold">B</button>
+                    <button type="button" class="rte__tool" data-cmd="italic" title="Italic">I</button>
+                    <button type="button" class="rte__tool" data-cmd="underline" title="Underline">U</button>
+                  </div>
+                  <div class="rte__toolbar-group">
+                    <label class="visually-hidden" for="rte-heading">Heading</label>
+                    <select id="rte-heading" class="rte__select">
+                      <option value="">P</option>
+                      <option value="h1">H1</option>
+                      <option value="h2">H2</option>
+                      <option value="h3">H3</option>
+                    </select>
+                  </div>
+                  <div class="rte__toolbar-group">
+                    <button type="button" class="rte__tool" data-cmd="insertUnorderedList" title="Bullet list">
+                      •
+                    </button>
+                    <button type="button" class="rte__tool" data-cmd="insertOrderedList" title="Numbered list">
+                      1.
+                    </button>
+                  </div>
+                  <div class="rte__toolbar-group">
+                    <button type="button" class="rte__tool" data-cmd="createLink" title="Link">
+                      Link
+                    </button>
+                    <button type="button" class="rte__tool" data-cmd="insertImage" title="Image">
+                      Img
+                    </button>
+                  </div>
+                  <div class="rte__toolbar-group">
+                    <button type="button" class="rte__tool" data-cmd="formatBlock" data-val="blockquote" title="Quote">
+                      “
+                    </button>
+                    <button type="button" class="rte__tool" data-cmd="formatBlock" data-val="pre" title="Code">
+                      &lt;/&gt;
+                    </button>
+                    <button type="button" class="rte__tool" data-cmd="removeFormat" title="Clear">
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <div
+                  id="rte-editor"
+                  class="rte__editor"
+                  contenteditable="true"
+                  role="textbox"
+                  aria-multiline="true"
+                  data-placeholder="Start writing your content here..."
+                ></div>
+                <textarea id="add-page-content-sync" name="contentHtml" hidden></textarea>
+              </div>
+              <p class="add-page__char-count" id="add-page-char-count">0 characters</p>
+
+              <div class="add-page__upload-block">
+                <p class="add-page__field-label">Featured image</p>
+                <div class="add-page__dropzone" id="add-page-featured-drop">
+                  <input
+                    type="file"
+                    id="add-page-featured-file"
+                    class="add-page__file-input"
+                    accept="image/*"
+                    aria-label="Upload featured image"
+                  />
+                  <span class="add-page__dropzone-icon" aria-hidden="true">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M7 18a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM21 15l-4-4-6 6"
+                        stroke="currentColor"
+                        stroke-width="1.3"
+                        stroke-linecap="round"
+                      />
+                      <path d="M3 15h4l3-3 4 4 5-5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+                    </svg>
+                  </span>
+                  <span class="add-page__dropzone-text">Click to upload or drag and drop</span>
+                  <span class="add-page__dropzone-hint">Recommended 1200 × 630px</span>
+                </div>
+                <input type="hidden" id="add-page-featured-url" name="featuredUrl" value="" />
+              </div>
+
+              <div class="add-page__upload-block">
+                <p class="add-page__field-label">Gallery</p>
+                <div class="add-page__dropzone add-page__dropzone--compact" id="add-page-gallery-drop">
+                  <input
+                    type="file"
+                    id="add-page-gallery-file"
+                    class="add-page__file-input"
+                    accept="image/*"
+                    multiple
+                    aria-label="Upload gallery images"
+                  />
+                  <span class="add-page__dropzone-text">Add gallery images</span>
+                </div>
+                <input type="hidden" id="add-page-gallery-urls" name="galleryUrls" value="[]" />
+              </div>
+            </div>
+          </div>
+
+          <aside class="add-page__col add-page__col--aside">
+            <div class="add-page__card add-page__card--aside">
+              <h2 class="add-page__card-title">Settings</h2>
+              <div class="add-page__segmented" role="group" aria-label="Status">
+                <button
+                  type="button"
+                  class="add-page__segment is-active"
+                  id="add-page-status-draft"
+                  aria-pressed="true"
+                >
+                  Draft
+                </button>
+                <button type="button" class="add-page__segment" id="add-page-status-published" aria-pressed="false">
+                  Published
+                </button>
+              </div>
+
+              <label class="add-page__field-label" for="add-page-category">Category</label>
+              <select id="add-page-category" name="category" class="add-page__select">
+                <option value="">Select category</option>
+              </select>
+
+              <label class="add-page__field-label" for="add-page-post-type">Post type</label>
+              <select id="add-page-post-type" name="postType" class="add-page__select">
+                <option value="">Select type</option>
+              </select>
+
+              <label class="add-page__field-label" for="add-page-author">Author</label>
+              <select id="add-page-author" name="author" class="add-page__select">
+                <option value="">Select author</option>
+              </select>
+
+              <label class="add-page__field-label" for="add-page-date">Publish date</label>
+              <input type="date" id="add-page-date" name="publishDate" class="add-page__input" />
+            </div>
+
+            <div class="add-page__card add-page__card--aside">
+              <h2 class="add-page__card-title">Tags</h2>
+              <div id="add-page-tags" class="add-page__tags" aria-live="polite"></div>
+              <div class="add-page__tag-input-wrap">
+                <input
+                  type="text"
+                  id="add-page-tag-input"
+                  class="add-page__input add-page__input--tag"
+                  placeholder="Add a tag..."
+                  autocomplete="off"
+                />
+                <span class="add-page__tag-plus" aria-hidden="true">+</span>
+              </div>
+              <ul class="add-page__tag-suggestions" id="add-page-tag-suggestions" aria-label="Suggested tags"></ul>
+            </div>
+          </aside>
+
+          <section class="add-page__seo" aria-labelledby="add-page-seo-heading">
+            <h2 id="add-page-seo-heading" class="add-page__card-title">SEO &amp; sharing</h2>
+            <div class="add-page__seo-grid">
+              <div class="add-page__seo-fields">
+                <label class="add-page__field-label" for="add-page-slug">URL slug</label>
+                <div class="add-page__slug-row">
+                  <span class="add-page__slug-prefix">creestudios.com/</span>
+                  <input type="text" id="add-page-slug" name="slug" class="add-page__input" placeholder="post-url" />
+                </div>
+
+                <label class="add-page__field-label" for="add-page-meta-title">Meta title</label>
+                <input type="text" id="add-page-meta-title" name="metaTitle" class="add-page__input" />
+
+                <label class="add-page__field-label" for="add-page-meta-desc">Meta description</label>
+                <textarea id="add-page-meta-desc" name="metaDescription" class="add-page__textarea" rows="3"></textarea>
+                <p class="add-page__meta-count" id="add-page-meta-count">0/160</p>
+
+                <label class="add-page__field-label" for="add-page-keywords">Focus keywords</label>
+                <input type="text" id="add-page-keywords" name="keywords" class="add-page__input" />
+              </div>
+              <div class="add-page__seo-preview-col">
+                <p class="add-page__field-label">Open Graph image</p>
+                <div class="add-page__dropzone add-page__dropzone--compact" id="add-page-og-drop">
+                  <input
+                    type="file"
+                    id="add-page-og-file"
+                    class="add-page__file-input"
+                    accept="image/*"
+                    aria-label="Open Graph image"
+                  />
+                  <span class="add-page__dropzone-text">Upload OG image</span>
+                </div>
+                <input type="hidden" id="add-page-og-url" name="ogImage" value="" />
+
+                <div class="add-page__search-preview" id="add-page-search-preview">
+                  <p class="add-page__field-label">Search preview</p>
+                  <div class="add-page__preview-card">
+                    <p class="add-page__preview-title" id="seo-preview-title">YOUR META TITLE WILL APPEAR HERE</p>
+                    <p class="add-page__preview-url" id="seo-preview-url">creestudios.com/post-slug</p>
+                    <p class="add-page__preview-desc" id="seo-preview-desc">Description preview…</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </form>
+    </div>
+
+    <div id="nav-overlay-container"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
