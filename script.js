@@ -30,7 +30,11 @@
     '<a href="features.html" class="nav-overlay__link">Features</a>' +
     '<a href="settings.html" class="nav-overlay__link">Settings</a>' +
     '<a href="notifications.html" class="nav-overlay__link">Notifications</a>' +
-    '<a href="all-pages.html" class="nav-overlay__link">All Pages</a>' +
+    '<a href="pages.html" class="nav-overlay__link">All Pages</a>' +
+    '<a href="all-pages.html" class="nav-overlay__link">All Pages (Legacy)</a>' +
+    '<a href="FAQ.html" class="nav-overlay__link">FAQ</a>' +
+    '<a href="help.html" class="nav-overlay__link">Help</a>' +
+    '<a href="privacy.html" class="nav-overlay__link">Policies</a>' +
     '<a href="reports.html" class="nav-overlay__link">Reports</a>' +
     "</nav>" +
     '<button type="button" class="nav-overlay__logout" id="nav-overlay-logout">Logout</button>' +
@@ -1270,7 +1274,7 @@
       });
 
       var aEdit = document.createElement("a");
-      aEdit.href = "edit-user.html?id=" + encodeURIComponent(user.id);
+      aEdit.href = "users.html";
       aEdit.setAttribute("role", "menuitem");
       aEdit.textContent = "Edit";
 
@@ -3052,10 +3056,13 @@
           .replace(/(^-|-$)/g, "") || "page";
     }
     var path = "/" + pathSeg;
-    var taken = pages.some(function (p) {
-      return p.path === path;
+    var existingById = pages.find(function (p) {
+      return p.id === post.id;
     });
-    if (taken) {
+    var takenByOther = pages.some(function (p) {
+      return p.path === path && p.id !== post.id;
+    });
+    if (takenByOther) {
       path =
         path +
         "-" +
@@ -3067,16 +3074,26 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     var titleDisplay = post.subtitle ? post.title + " - " + post.subtitle : post.title;
-    pages.unshift({
+    var entry = {
       id: post.id,
       path: path,
       title: titleDisplay,
       status: post.status === "published" ? "published" : "draft",
-      views: randInt(1200, 120000),
-      retention: randInt(35, 92),
-      bounce: randInt(8, 55),
-      avgTime: randInt(0, 4) + "m " + randInt(0, 59) + "s",
-    });
+      views: existingById ? existingById.views : randInt(1200, 120000),
+      retention: existingById ? existingById.retention : randInt(35, 92),
+      bounce: existingById ? existingById.bounce : randInt(8, 55),
+      avgTime: existingById
+        ? existingById.avgTime
+        : randInt(0, 4) + "m " + randInt(0, 59) + "s",
+    };
+    if (existingById) {
+      var idx = pages.findIndex(function (p) {
+        return p.id === post.id;
+      });
+      if (idx !== -1) pages[idx] = entry;
+    } else {
+      pages.unshift(entry);
+    }
     saveData(DASHBOARD_PAGES_KEY, pages);
   }
 
