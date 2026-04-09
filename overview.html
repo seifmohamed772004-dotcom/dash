@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Overview</title>
+    <title>Overview — Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,9 +11,163 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="stylesheet.css" />
+    <link rel="stylesheet" href="overview.css" />
   </head>
-  <body>
-    <p>Overview — replace with your dashboard shell.</p>
+  <body class="dashboard-page overview-page">
+    <header class="topbar">
+      <a href="overview.html" class="topbar__brand">CREESTUDIOS</a>
+      <button
+        type="button"
+        class="topbar__burger"
+        id="nav-open"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-overlay"
+      >
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <main class="overview-main">
+      <div class="overview-grid">
+        <section class="panel panel--subs" aria-labelledby="subs-heading">
+          <h2 id="subs-heading" class="panel__heading">
+            <span class="panel__heading-part">LATEST</span>
+            <span class="panel__heading-part panel__heading-part--accent"
+              >SUBSCRIPTIONS</span
+            >
+          </h2>
+          <div class="subs-list" id="subs-list" role="list"></div>
+          <div class="empty-state" id="subs-empty" hidden>
+            <p class="empty-state__text">No subscriptions yet</p>
+          </div>
+        </section>
+
+        <section class="panel panel--stats" aria-labelledby="stats-heading">
+          <h2 id="stats-heading" class="panel__heading">
+            <span class="panel__heading-part">ACTIVE</span>
+            <span class="panel__heading-part panel__heading-part--accent">USERS</span>
+          </h2>
+          <div class="stats-grid">
+            <div class="stat-block">
+              <p class="stat-block__label">ONLINE USERS</p>
+              <p class="stat-block__value">
+                <span id="stat-online">77,188</span>
+                <span class="stat-block__unit">USER</span>
+              </p>
+            </div>
+            <div class="stat-block">
+              <p class="stat-block__label">LINKED FRIENDS</p>
+              <p class="stat-block__value">
+                <span id="stat-linked">89,000</span>
+                <span class="stat-block__unit">USER</span>
+              </p>
+            </div>
+            <div class="stat-block">
+              <p class="stat-block__label">TOTAL USERS</p>
+              <p class="stat-block__value">
+                <span id="stat-total">0</span>
+                <span class="stat-block__unit">USER</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <a
+          href="settings.html"
+          class="panel panel--nav-card panel--settings"
+          id="card-settings"
+        >
+          <span class="nav-card__icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 15a3 3 0 100-6 3 3 0 000 6z"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path
+                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="nav-card__label">SETTINGS</span>
+        </a>
+
+        <section class="panel panel--tags" aria-labelledby="tags-heading">
+          <h2 id="tags-heading" class="panel__heading">
+            <span class="panel__heading-part">UPCOMING</span>
+            <span class="panel__heading-part panel__heading-part--accent">TAGS</span>
+          </h2>
+          <ul class="tags-list" id="tags-list"></ul>
+        </section>
+
+        <a
+          href="notifications.html"
+          class="panel panel--nav-card panel--notifications"
+          id="card-notifications"
+        >
+          <span class="nav-card__icon" aria-hidden="true">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M13.73 21a2 2 0 01-3.46 0"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="nav-card__label">NOTIFICATIONS</span>
+        </a>
+
+        <a href="add-tag.html" class="panel panel--cta" id="cta-create-tag">
+          <span class="panel--cta__text">+ CREATE NEW TAG</span>
+        </a>
+      </div>
+    </main>
+
+    <div
+      class="nav-overlay"
+      id="nav-overlay"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation"
+    >
+      <div class="nav-overlay__backdrop" id="nav-backdrop"></div>
+      <div class="nav-overlay__content">
+        <button
+          type="button"
+          class="nav-overlay__close"
+          id="nav-close"
+          aria-label="Close menu"
+        >
+          &times;
+        </button>
+        <nav class="nav-overlay__nav" aria-label="Main">
+          <a class="nav-overlay__link" href="overview.html">Overview</a>
+          <a class="nav-overlay__link" href="index.html">Login</a>
+          <a class="nav-overlay__link" href="settings.html">Settings</a>
+          <a class="nav-overlay__link" href="notifications.html">Notifications</a>
+          <a class="nav-overlay__link" href="add-tag.html">Create tag</a>
+        </nav>
+      </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="overview.js"></script>
   </body>
 </html>
