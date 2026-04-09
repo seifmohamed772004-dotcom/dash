@@ -2963,6 +2963,49 @@
     };
   }
 
+  var DASHBOARD_PAGES_KEY = "dashboard_pages";
+
+  function syncPostToDashboardPages(post) {
+    var pages = getData(DASHBOARD_PAGES_KEY);
+    if (!Array.isArray(pages)) pages = [];
+    var slug = String(post.slug || "").trim();
+    var pathSeg = slug.replace(/^\/+/, "").replace(/\/+/g, "-");
+    if (!pathSeg) {
+      pathSeg =
+        String(post.title || "page")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "") || "page";
+    }
+    var path = "/" + pathSeg;
+    var taken = pages.some(function (p) {
+      return p.path === path;
+    });
+    if (taken) {
+      path =
+        path +
+        "-" +
+        String(post.id)
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .slice(-8);
+    }
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    var titleDisplay = post.subtitle ? post.title + " - " + post.subtitle : post.title;
+    pages.unshift({
+      id: post.id,
+      path: path,
+      title: titleDisplay,
+      status: post.status === "published" ? "published" : "draft",
+      views: randInt(1200, 120000),
+      retention: randInt(35, 92),
+      bounce: randInt(8, 55),
+      avgTime: randInt(0, 4) + "m " + randInt(0, 59) + "s",
+    });
+    saveData(DASHBOARD_PAGES_KEY, pages);
+  }
+
   function gatherAddPageFormData() {
     var editor = document.getElementById("rte-editor");
     var contentHtml = editor ? editor.innerHTML : "";
@@ -3042,6 +3085,7 @@
     posts.unshift(post);
     try {
       saveData("posts", posts);
+      syncPostToDashboardPages(post);
       if (window.AppNotifications) {
         window.AppNotifications.push({
           title: post.status === "published" ? "Post published" : "Draft saved",
@@ -3049,7 +3093,7 @@
           type: "success",
         });
       }
-      window.location.href = "posts.html";
+      window.location.href = "pages.html";
     } catch (e) {
       window.alert("Could not save.");
     }

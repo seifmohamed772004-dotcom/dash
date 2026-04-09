@@ -1075,18 +1075,6 @@
           showToast("Status updated");
         }
 
-        function openModalNew() {
-          editingId = null;
-          document.getElementById("pg-modal-title").textContent = "New page";
-          document.getElementById("pg-edit-id").value = "";
-          document.getElementById("pg-in-path").value = "";
-          document.getElementById("pg-in-title").value = "";
-          document.getElementById("pg-in-status").value = "published";
-          document.getElementById("pg-err-path").textContent = "";
-          document.getElementById("pg-err-title").textContent = "";
-          openModal();
-        }
-
         function openModalEdit(id) {
           var list = loadPages();
           var p = list.find(function (x) {
@@ -1138,7 +1126,9 @@
           }, 2200);
         }
 
-        document.getElementById("pg-btn-new").addEventListener("click", openModalNew);
+        document.getElementById("pg-btn-new").addEventListener("click", function () {
+          window.location.href = "add-page.html";
+        });
         document.getElementById("pg-btn-cancel").addEventListener("click", closeModal);
         document.getElementById("pg-modal").addEventListener("click", function (e) {
           if (e.target.id === "pg-modal") closeModal();
