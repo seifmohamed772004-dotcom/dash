@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="login-page">
+    <div class="login-shell">
+      <main class="login-panel">
+        <header class="login-header">
+          <p class="login-brand" aria-label="CREE Studios">
+            CREE<span class="login-brand__mark" aria-hidden="true"></span>STUDIOS
+          </p>
+          <h1 class="login-title">
+            WELCOME <span class="login-title__accent">BACK!</span>
+          </h1>
+          <p class="login-subtitle">
+            Enter your e-mail and password to access the admin dashboard
+          </p>
+        </header>
+
+        <form class="login-form" id="login-form" novalidate>
+          <div
+            class="form-alert form-alert--error"
+            id="form-error"
+            role="alert"
+            hidden
+          ></div>
+
+          <div class="field">
+            <label class="field__label" for="email">Email</label>
+            <div class="field__control">
+              <input
+                class="input"
+                type="email"
+                id="email"
+                name="email"
+                autocomplete="email"
+                placeholder="@gmail.com"
+                required
+                aria-invalid="false"
+                aria-describedby="email-error"
+              />
+            </div>
+            <p class="field__error" id="email-error" role="status" hidden></p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="password">Password</label>
+            <div class="field__control field__control--suffix">
+              <input
+                class="input"
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+                required
+                minlength="6"
+                aria-invalid="false"
+                aria-describedby="password-error"
+              />
+              <button
+                type="button"
+                class="input-suffix-btn"
+                id="toggle-password"
+                aria-label="Show password"
+                aria-pressed="false"
+              >
+                <span class="input-suffix-btn__icon" aria-hidden="true">
+                  <svg
+                    class="icon-eye icon-eye--open"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                    />
+                  </svg>
+                  <svg
+                    class="icon-eye icon-eye--closed"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M3 3L21 21"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M10.58 10.58C10.21 10.95 10 11.45 10 12C10 13.1 10.9 14 12 14C12.55 14 13.05 13.79 13.42 13.42"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M6.53 6.53C4.55 7.85 3 10 2 12C2 12 5 19 12 19C14.17 19 15.9 18.45 17.29 17.59M9.88 9.88C9.29 10.47 9 11.21 9 12C9 13.66 10.34 15 12 15C12.79 15 13.53 14.71 14.12 14.12"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M14.12 14.12L17.59 17.59M9.88 9.88L6.41 6.41M2 2L6.41 6.41M17.59 17.59L22 22M17.59 17.59C19.45 16.36 20.9 14.8 22 12C22 12 19 5 12 5C11.04 5 10.15 5.2 9.35 5.5"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+            </div>
+            <p class="field__error" id="password-error" role="status" hidden></p>
+          </div>
+
+          <div class="login-row">
+            <label class="checkbox">
+              <input type="checkbox" id="remember" name="remember" />
+              <span class="checkbox__text">Remember me</span>
+            </label>
+            <a href="#" class="login-link" id="forgot-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn btn--outline" id="btn-submit">
+            Login
+          </button>
+        </form>
+
+        <button type="button" class="btn btn--google" id="btn-google">
+          <img
+            class="btn__google-icon"
+            src="Assets/Google_G.svg"
+            alt=""
+            width="20"
+            height="20"
+          />
+          Login with Google
+        </button>
+      </main>
+
+      <div class="login-visual" aria-hidden="true">
+        <div class="login-visual__bokeh"></div>
+        <div class="login-visual__overlay"></div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
