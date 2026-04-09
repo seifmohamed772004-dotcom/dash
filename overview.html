@@ -11,7 +11,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="stylesheet.css" />
-    <link rel="stylesheet" href="overview.css" />
   </head>
   <body class="dashboard-page overview-page">
     <header class="topbar">
@@ -23,6 +22,7 @@
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="nav-overlay"
+        aria-haspopup="dialog"
       >
         <span class="topbar__burger-line" aria-hidden="true"></span>
         <span class="topbar__burger-line" aria-hidden="true"></span>
@@ -139,35 +139,8 @@
       </div>
     </main>
 
-    <div
-      class="nav-overlay"
-      id="nav-overlay"
-      hidden
-      role="dialog"
-      aria-modal="true"
-      aria-label="Navigation"
-    >
-      <div class="nav-overlay__backdrop" id="nav-backdrop"></div>
-      <div class="nav-overlay__content">
-        <button
-          type="button"
-          class="nav-overlay__close"
-          id="nav-close"
-          aria-label="Close menu"
-        >
-          &times;
-        </button>
-        <nav class="nav-overlay__nav" aria-label="Main">
-          <a class="nav-overlay__link" href="overview.html">Overview</a>
-          <a class="nav-overlay__link" href="index.html">Login</a>
-          <a class="nav-overlay__link" href="settings.html">Settings</a>
-          <a class="nav-overlay__link" href="notifications.html">Notifications</a>
-          <a class="nav-overlay__link" href="add-tag.html">Create tag</a>
-        </nav>
-      </div>
-    </div>
+    <div id="nav-overlay-container"></div>
 
     <script src="script.js"></script>
-    <script src="overview.js"></script>
   </body>
 </html>

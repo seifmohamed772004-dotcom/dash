@@ -11,16 +11,30 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="stylesheet.css" />
-    <link rel="stylesheet" href="overview.css" />
   </head>
   <body class="dashboard-page">
     <header class="topbar">
       <a href="overview.html" class="topbar__brand">CREESTUDIOS</a>
-      <a href="overview.html" class="topbar__back">BACK</a>
+      <button
+        type="button"
+        class="topbar__burger"
+        id="nav-open"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-overlay"
+        aria-haspopup="dialog"
+      >
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+      </button>
     </header>
     <main class="page-placeholder">
       <h1>Settings</h1>
       <p>Placeholder — add settings content here.</p>
     </main>
+
+    <div id="nav-overlay-container"></div>
+    <script src="script.js"></script>
   </body>
 </html>
