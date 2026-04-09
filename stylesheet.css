@@ -3911,3 +3911,15 @@ html[dir="rtl"] .rte__editor {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Hide all scrollbars across the dashboard */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
