@@ -1,5 +1,5 @@
 /**
- * Main app script — storage, login, overview dashboard, nav overlay
+ * Main app script — storage, login, overview, posts, post inner, nav overlay
  */
 (function () {
   "use strict";
@@ -419,6 +419,748 @@
     renderTags();
   }
 
+  var postsPageSize = 5;
+  var postsListPage = 1;
+  var postsOpenMenuId = null;
+  var postsPendingDeleteId = null;
+  var postsToastTimer = null;
+  var POST_CATEGORIES = ["Branding", "UX/UI", "Marketing", "Development"];
+
+  function postNewId() {
+    return "post-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+  }
+
+  function ensureDummyPosts() {
+    if (localStorage.getItem("posts") !== null) return;
+
+    var now = new Date();
+    var demo = [
+      {
+        id: postNewId(),
+        title: "LUNA STUDIO — BRAND IDENTITY",
+        description:
+          "A seasoned graphic designer with 13 years of experience crafting visual stories.",
+        category: "Branding",
+        image: "https://picsum.photos/seed/luna/240/160",
+        date: "2026-02-27",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: postNewId(),
+        title: "NORTHWAVE — WEB EXPERIENCE",
+        description:
+          "End-to-end product design for a music streaming platform focused on discovery.",
+        category: "UX/UI",
+        image: "https://picsum.photos/seed/north/240/160",
+        date: "2026-02-20",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: postNewId(),
+        title: "CREST AGENCY — CAMPAIGN 2026",
+        description:
+          "Cross-channel marketing campaign with motion and social-first assets.",
+        category: "Marketing",
+        image: "https://picsum.photos/seed/crest/240/160",
+        date: "2026-02-15",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: postNewId(),
+        title: "API GATEWAY — TECH NOTE",
+        description:
+          "Internal dashboard for monitoring latency and error rates across services.",
+        category: "Development",
+        image: "https://picsum.photos/seed/api/240/160",
+        date: "2026-02-10",
+        createdAt: now.toISOString(),
+      },
+      {
+        id: postNewId(),
+        title: "ECHO — MOBILE PROTOTYPE",
+        description:
+          "High-fidelity prototype for onboarding flows and accessibility review.",
+        category: "UX/UI",
+        image: "https://picsum.photos/seed/echo/240/160",
+        date: "2026-02-05",
+        createdAt: now.toISOString(),
+      },
+    ];
+
+    try {
+      saveData("posts", demo);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function formatPostDisplayDate(isoOrStr) {
+    if (!isoOrStr) return "";
+    var d;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(isoOrStr)) {
+      var p = isoOrStr.split("-");
+      d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    } else {
+      d = new Date(isoOrStr);
+    }
+    if (isNaN(d.getTime())) return isoOrStr;
+    return d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear();
+  }
+
+  function filterPostsArray(all, q, dateVal, catVal) {
+    q = (q || "").trim().toLowerCase();
+    dateVal = dateVal || "";
+    catVal = catVal || "";
+    return all.filter(function (p) {
+      var title = (p.title || "").toLowerCase();
+      if (q && title.indexOf(q) === -1) return false;
+      if (dateVal && (p.date || "").slice(0, 10) !== dateVal) return false;
+      if (catVal && (p.category || "") !== catVal) return false;
+      return true;
+    });
+  }
+
+  function filterPostsListWithIds(all, nameId, dateId, catId) {
+    var nameEl = document.getElementById(nameId || "filter-name");
+    var dateEl = document.getElementById(dateId || "filter-date");
+    var catEl = document.getElementById(catId || "filter-category");
+    return filterPostsArray(
+      all,
+      nameEl && nameEl.value,
+      dateEl && dateEl.value,
+      catEl && catEl.value
+    );
+  }
+
+  function filterPostsList(all) {
+    return filterPostsListWithIds(all, "filter-name", "filter-date", "filter-category");
+  }
+
+  function applyPostsPagination(filtered) {
+    var total = filtered.length;
+    var pages = Math.max(1, Math.ceil(total / postsPageSize) || 1);
+    if (postsListPage > pages) postsListPage = pages;
+    if (postsListPage < 1) postsListPage = 1;
+
+    var start = (postsListPage - 1) * postsPageSize;
+    var slice = filtered.slice(start, start + postsPageSize);
+
+    return { slice: slice, total: total, pages: pages };
+  }
+
+  function closeAllPostMenus() {
+    document.querySelectorAll(".post-row__dropdown").forEach(function (el) {
+      el.hidden = true;
+    });
+    document.querySelectorAll(".post-row__kebab").forEach(function (btn) {
+      btn.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+    postsOpenMenuId = null;
+  }
+
+  function togglePostMenu(postId, btn, dropdown) {
+    var isOpen = postsOpenMenuId === postId && !dropdown.hidden;
+    closeAllPostMenus();
+    if (!isOpen) {
+      dropdown.hidden = false;
+      btn.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      postsOpenMenuId = postId;
+    }
+  }
+
+  function showPostsToast(message) {
+    var el = document.getElementById("posts-toast");
+    if (!el) return;
+    el.textContent = message;
+    el.hidden = false;
+    clearTimeout(postsToastTimer);
+    postsToastTimer = setTimeout(function () {
+      el.hidden = true;
+    }, 3200);
+  }
+
+  function openPostDeleteModal(postId) {
+    postsPendingDeleteId = postId;
+    var modal = document.getElementById("delete-modal");
+    if (modal) {
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      var confirmBtn = document.getElementById("delete-modal-confirm");
+      if (confirmBtn) confirmBtn.focus();
+    }
+  }
+
+  function closePostDeleteModal() {
+    postsPendingDeleteId = null;
+    var modal = document.getElementById("delete-modal");
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  function deletePostById(postId) {
+    var posts = getData("posts");
+    var next = posts.filter(function (p) {
+      return p.id !== postId;
+    });
+    try {
+      saveData("posts", next);
+      showPostsToast("Post deleted");
+      closeAllPostMenus();
+      renderPostsList();
+    } catch (e) {
+      showPostsToast("Could not save changes. Check storage.");
+    }
+  }
+
+  function renderPostsList() {
+    var listEl = document.getElementById("posts-list");
+    var emptyEl = document.getElementById("posts-empty");
+    var infoEl = document.getElementById("posts-page-info");
+    var prevBtn = document.getElementById("page-prev");
+    var nextBtn = document.getElementById("page-next");
+
+    if (!listEl || !emptyEl) return;
+
+    var all = getData("posts");
+    var filtered = filterPostsList(all);
+    var result = applyPostsPagination(filtered);
+    var slice = result.slice;
+
+    closeAllPostMenus();
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = "";
+      emptyEl.hidden = false;
+      if (infoEl) infoEl.textContent = "";
+      if (prevBtn) prevBtn.disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
+      return;
+    }
+
+    emptyEl.hidden = true;
+
+    if (infoEl) {
+      var start = (postsListPage - 1) * postsPageSize + 1;
+      var end = Math.min(postsListPage * postsPageSize, result.total);
+      infoEl.textContent =
+        "Showing " +
+        start +
+        "–" +
+        end +
+        " of " +
+        result.total +
+        (result.pages > 1
+          ? " · Page " + postsListPage + " / " + result.pages
+          : "");
+    }
+
+    if (prevBtn) prevBtn.disabled = postsListPage <= 1;
+    if (nextBtn) nextBtn.disabled = postsListPage >= result.pages;
+
+    listEl.innerHTML = "";
+    slice.forEach(function (post) {
+      var article = document.createElement("article");
+      article.className = "post-row";
+      article.setAttribute("data-post-id", post.id);
+
+      var img = document.createElement("img");
+      img.className = "post-row__thumb";
+      img.src = post.image || "https://picsum.photos/seed/nothumb/240/160";
+      img.alt = "";
+      img.width = 112;
+      img.height = 72;
+      img.loading = "lazy";
+
+      var body = document.createElement("div");
+      body.className = "post-row__body";
+
+      var h3 = document.createElement("h3");
+      h3.className = "post-row__title";
+      h3.textContent = post.title || "Untitled";
+
+      var p = document.createElement("p");
+      p.className = "post-row__desc";
+      p.textContent = post.description || "";
+
+      var time = document.createElement("time");
+      time.className = "post-row__date";
+      time.dateTime = post.date || "";
+      time.textContent = formatPostDisplayDate(post.date);
+
+      body.appendChild(h3);
+      body.appendChild(p);
+      body.appendChild(time);
+
+      var actions = document.createElement("div");
+      actions.className = "post-row__actions";
+
+      var kebab = document.createElement("button");
+      kebab.type = "button";
+      kebab.className = "post-row__kebab";
+      kebab.setAttribute("aria-label", "Post actions");
+      kebab.setAttribute("aria-expanded", "false");
+      kebab.setAttribute("aria-haspopup", "true");
+      kebab.innerHTML =
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+
+      var dropdown = document.createElement("div");
+      dropdown.className = "post-row__dropdown";
+      dropdown.hidden = true;
+      dropdown.setAttribute("role", "menu");
+
+      var btnView = document.createElement("button");
+      btnView.type = "button";
+      btnView.setAttribute("role", "menuitem");
+      btnView.textContent = "View";
+      btnView.addEventListener("click", function () {
+        window.location.href =
+          "post.html?id=" + encodeURIComponent(post.id);
+      });
+
+      var aEdit = document.createElement("a");
+      aEdit.href = "edit-post.html?id=" + encodeURIComponent(post.id);
+      aEdit.setAttribute("role", "menuitem");
+      aEdit.textContent = "Edit";
+
+      var btnDel = document.createElement("button");
+      btnDel.type = "button";
+      btnDel.className = "posts-menu-danger";
+      btnDel.setAttribute("role", "menuitem");
+      btnDel.textContent = "Delete";
+      btnDel.addEventListener("click", function () {
+        closeAllPostMenus();
+        openPostDeleteModal(post.id);
+      });
+
+      dropdown.appendChild(btnView);
+      dropdown.appendChild(aEdit);
+      dropdown.appendChild(btnDel);
+
+      dropdown.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+
+      kebab.addEventListener("click", function (e) {
+        e.stopPropagation();
+        togglePostMenu(post.id, kebab, dropdown);
+      });
+
+      actions.appendChild(kebab);
+      actions.appendChild(dropdown);
+
+      article.appendChild(img);
+      article.appendChild(body);
+      article.appendChild(actions);
+      listEl.appendChild(article);
+    });
+  }
+
+  function populatePostCategorySelect(targetId) {
+    var sel = document.getElementById(targetId || "filter-category");
+    if (!sel) return;
+    sel.innerHTML = "";
+    var opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "All categories";
+    sel.appendChild(opt0);
+    POST_CATEGORIES.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c;
+      o.textContent = c;
+      sel.appendChild(o);
+    });
+  }
+
+  function bindPostFilters() {
+    var nameEl = document.getElementById("filter-name");
+    var dateEl = document.getElementById("filter-date");
+    var catEl = document.getElementById("filter-category");
+
+    function onFilterChange() {
+      postsListPage = 1;
+      renderPostsList();
+    }
+
+    if (nameEl) nameEl.addEventListener("input", onFilterChange);
+    if (dateEl) dateEl.addEventListener("change", onFilterChange);
+    if (catEl) catEl.addEventListener("change", onFilterChange);
+  }
+
+  function bindPostPagination() {
+    var prevBtn = document.getElementById("page-prev");
+    var nextBtn = document.getElementById("page-next");
+
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function () {
+        if (postsListPage > 1) {
+          postsListPage--;
+          renderPostsList();
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        var filtered = filterPostsList(getData("posts"));
+        var pages = Math.max(1, Math.ceil(filtered.length / postsPageSize));
+        if (postsListPage < pages) {
+          postsListPage++;
+          renderPostsList();
+        }
+      });
+    }
+  }
+
+  function bindPostsGlobalCloseMenus() {
+    document.addEventListener("click", function () {
+      closeAllPostMenus();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeAllPostMenus();
+    });
+  }
+
+  function bindPostDeleteModal() {
+    var modal = document.getElementById("delete-modal");
+    var backdrop = document.getElementById("delete-modal-backdrop");
+    var cancel = document.getElementById("delete-modal-cancel");
+    var confirm = document.getElementById("delete-modal-confirm");
+
+    function close() {
+      closePostDeleteModal();
+    }
+
+    if (cancel) cancel.addEventListener("click", close);
+    if (backdrop) backdrop.addEventListener("click", close);
+    if (confirm) {
+      confirm.addEventListener("click", function () {
+        if (postsPendingDeleteId) deletePostById(postsPendingDeleteId);
+        closePostDeleteModal();
+      });
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (modal && !modal.hidden) {
+        e.preventDefault();
+        close();
+      }
+    });
+  }
+
+  function initPostsPage() {
+    if (!document.getElementById("posts-list")) return;
+
+    ensureDummyPosts();
+    if (new URLSearchParams(location.search).get("deleted") === "1") {
+      showPostsToast("Post deleted successfully");
+      try {
+        history.replaceState({}, "", "posts.html");
+      } catch (e) {}
+    }
+    populatePostCategorySelect();
+    bindPostFilters();
+    bindPostPagination();
+    bindPostsGlobalCloseMenus();
+    bindPostDeleteModal();
+    renderPostsList();
+  }
+
+  function getSessionDisplayName() {
+    try {
+      var raw = localStorage.getItem("currentUser");
+      if (!raw) return "Guest";
+      var u = JSON.parse(raw);
+      if (u.email) {
+        var local = String(u.email).split("@")[0];
+        var parts = local.replace(/[._-]+/g, " ").split(" ").filter(Boolean);
+        if (parts.length === 0) return "Guest";
+        return parts
+          .map(function (p) {
+            return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+          })
+          .join(" ");
+      }
+    } catch (e) {}
+    return "Guest";
+  }
+
+  var postInnerCurrentId = null;
+  var postInnerRelatedPage = 1;
+  var postInnerRelatedPageSize = 6;
+  var postInnerToastTimer = null;
+
+  function showPostInnerToast(message) {
+    var el = document.getElementById("post-inner-toast");
+    if (!el) return;
+    el.textContent = message;
+    el.hidden = false;
+    clearTimeout(postInnerToastTimer);
+    postInnerToastTimer = setTimeout(function () {
+      el.hidden = true;
+    }, 2800);
+  }
+
+  function cssUrlValue(u) {
+    if (!u) return "none";
+    return 'url("' + String(u).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '")';
+  }
+
+  function openPostInnerDeleteModal() {
+    var modal = document.getElementById("post-inner-delete-modal");
+    if (modal) {
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      var confirmBtn = document.getElementById("post-inner-delete-confirm");
+      if (confirmBtn) confirmBtn.focus();
+    }
+  }
+
+  function closePostInnerDeleteModal() {
+    var modal = document.getElementById("post-inner-delete-modal");
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  function renderPostInnerRelated() {
+    var grid = document.getElementById("post-inner-related-grid");
+    var emptyEl = document.getElementById("post-inner-related-empty");
+    var infoEl = document.getElementById("post-inner-related-info");
+    var prevBtn = document.getElementById("post-inner-page-prev");
+    var nextBtn = document.getElementById("post-inner-page-next");
+    if (!grid || !postInnerCurrentId) return;
+
+    var all = getData("posts");
+    var others = all.filter(function (p) {
+      return p.id !== postInnerCurrentId;
+    });
+    var filtered = filterPostsListWithIds(
+      others,
+      "post-inner-filter-name",
+      "post-inner-filter-date",
+      "post-inner-filter-category"
+    );
+
+    var total = filtered.length;
+    var pages = Math.max(1, Math.ceil(total / postInnerRelatedPageSize) || 1);
+    if (postInnerRelatedPage > pages) postInnerRelatedPage = pages;
+    if (postInnerRelatedPage < 1) postInnerRelatedPage = 1;
+
+    var start = (postInnerRelatedPage - 1) * postInnerRelatedPageSize;
+    var slice = filtered.slice(start, start + postInnerRelatedPageSize);
+
+    if (infoEl) {
+      if (total === 0) {
+        infoEl.textContent = "";
+      } else {
+        var startN = start + 1;
+        var endN = Math.min(start + postInnerRelatedPageSize, total);
+        infoEl.textContent =
+          "Showing " +
+          startN +
+          "–" +
+          endN +
+          " of " +
+          total +
+          (pages > 1 ? " · Page " + postInnerRelatedPage + " / " + pages : "");
+      }
+    }
+
+    if (prevBtn) prevBtn.disabled = postInnerRelatedPage <= 1;
+    if (nextBtn) nextBtn.disabled = postInnerRelatedPage >= pages;
+
+    grid.innerHTML = "";
+    if (slice.length === 0) {
+      if (emptyEl) emptyEl.hidden = false;
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+
+    slice.forEach(function (p) {
+      var a = document.createElement("a");
+      a.className = "post-inner__card";
+      a.href = "post.html?id=" + encodeURIComponent(p.id);
+      var img = document.createElement("img");
+      img.className = "post-inner__card-img";
+      img.src = p.image || "https://picsum.photos/seed/nothumb/240/160";
+      img.alt = "";
+      img.loading = "lazy";
+      var cap = document.createElement("span");
+      cap.className = "post-inner__card-title";
+      cap.textContent = p.title || "Untitled";
+      a.appendChild(img);
+      a.appendChild(cap);
+      grid.appendChild(a);
+    });
+  }
+
+  function bindPostInnerPage() {
+    var nameEl = document.getElementById("post-inner-filter-name");
+    var dateEl = document.getElementById("post-inner-filter-date");
+    var catEl = document.getElementById("post-inner-filter-category");
+
+    function onFilterChange() {
+      postInnerRelatedPage = 1;
+      renderPostInnerRelated();
+    }
+
+    if (nameEl) nameEl.addEventListener("input", onFilterChange);
+    if (dateEl) dateEl.addEventListener("change", onFilterChange);
+    if (catEl) catEl.addEventListener("change", onFilterChange);
+
+    var prevBtn = document.getElementById("post-inner-page-prev");
+    var nextBtn = document.getElementById("post-inner-page-next");
+    if (prevBtn) {
+      prevBtn.addEventListener("click", function () {
+        if (postInnerRelatedPage > 1) {
+          postInnerRelatedPage--;
+          renderPostInnerRelated();
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        var all = getData("posts");
+        var others = all.filter(function (p) {
+          return p.id !== postInnerCurrentId;
+        });
+        var filtered = filterPostsListWithIds(
+          others,
+          "post-inner-filter-name",
+          "post-inner-filter-date",
+          "post-inner-filter-category"
+        );
+        var pages = Math.max(
+          1,
+          Math.ceil(filtered.length / postInnerRelatedPageSize) || 1
+        );
+        if (postInnerRelatedPage < pages) {
+          postInnerRelatedPage++;
+          renderPostInnerRelated();
+        }
+      });
+    }
+
+    var searchBtn = document.getElementById("post-inner-filter-search");
+    if (searchBtn && nameEl) {
+      searchBtn.addEventListener("click", function () {
+        nameEl.focus();
+      });
+    }
+
+    var btnDel = document.getElementById("post-inner-btn-delete");
+    if (btnDel) {
+      btnDel.addEventListener("click", function () {
+        openPostInnerDeleteModal();
+      });
+    }
+
+    var btnDetails = document.getElementById("post-inner-btn-details");
+    if (btnDetails) {
+      btnDetails.addEventListener("click", function () {
+        var related = document.getElementById("related-posts");
+        if (related) {
+          related.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    }
+
+    var backdrop = document.getElementById("post-inner-delete-backdrop");
+    var cancel = document.getElementById("post-inner-delete-cancel");
+    var confirm = document.getElementById("post-inner-delete-confirm");
+
+    function closeDel() {
+      closePostInnerDeleteModal();
+    }
+
+    if (cancel) cancel.addEventListener("click", closeDel);
+    if (backdrop) backdrop.addEventListener("click", closeDel);
+    if (confirm) {
+      confirm.addEventListener("click", function () {
+        if (!postInnerCurrentId) {
+          closeDel();
+          return;
+        }
+        var posts = getData("posts");
+        var next = posts.filter(function (p) {
+          return p.id !== postInnerCurrentId;
+        });
+        try {
+          saveData("posts", next);
+          closeDel();
+          window.location.href = "posts.html?deleted=1";
+        } catch (e) {
+          showPostInnerToast("Could not save changes. Check storage.");
+        }
+      });
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      var modal = document.getElementById("post-inner-delete-modal");
+      if (modal && !modal.hidden) {
+        e.preventDefault();
+        closeDel();
+      }
+    });
+  }
+
+  function initPostInnerPage() {
+    var content = document.getElementById("post-inner-content");
+    var err = document.getElementById("post-inner-error");
+    if (!content || !err) return;
+
+    ensureDummyPosts();
+    var id = (new URLSearchParams(location.search).get("id") || "").trim();
+    if (!id) {
+      err.hidden = false;
+      return;
+    }
+
+    var posts = getData("posts");
+    var post = posts.find(function (p) {
+      return String(p.id) === id;
+    });
+    if (!post) {
+      err.hidden = false;
+      return;
+    }
+
+    postInnerCurrentId = id;
+    postInnerRelatedPage = 1;
+    err.remove();
+    content.hidden = false;
+
+    document.title = (post.title || "Post") + " — Admin";
+
+    var media = document.getElementById("post-inner-hero-media");
+    if (media) {
+      media.style.backgroundImage = cssUrlValue(post.image);
+    }
+
+    var catEl = document.getElementById("post-inner-category");
+    if (catEl) {
+      catEl.textContent = (post.category || "").toUpperCase().replace(/\s+/g, " ").trim() || "—";
+    }
+
+    var titleEl = document.getElementById("post-inner-title");
+    if (titleEl) titleEl.textContent = post.title || "Untitled";
+
+    var descEl = document.getElementById("post-inner-description");
+    if (descEl) descEl.textContent = post.description || "";
+
+    var authorEl = document.getElementById("post-inner-author-name");
+    if (authorEl) authorEl.textContent = getSessionDisplayName();
+
+    var editLink = document.getElementById("post-inner-btn-edit");
+    if (editLink) editLink.href = "edit-post.html?id=" + encodeURIComponent(id);
+
+    populatePostCategorySelect("post-inner-filter-category");
+    bindPostInnerPage();
+    renderPostInnerRelated();
+  }
+
   var navOverlay = null;
   var navOpenBtn = null;
   var navCloseTimer = null;
@@ -624,6 +1366,8 @@
     ensureDefaultAdminUser();
     initLoginPage();
     initOverviewPage();
+    initPostsPage();
+    initPostInnerPage();
     injectNavOverlay();
   }
 

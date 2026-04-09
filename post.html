@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="dashboard-page post-inner-page">
+    <div id="post-inner-error" class="post-inner__error" hidden>
+      <p class="post-inner__error-title">Post not found</p>
+      <a href="posts.html" class="post-inner__error-link">Back to all posts</a>
+    </div>
+
+    <div id="post-inner-content" class="post-inner" hidden>
+      <div class="post-inner__shell">
+        <header class="topbar topbar--post-inner">
+          <a href="overview.html" class="topbar__brand topbar__brand--studio">
+            CREE<span class="topbar__brand-mark" aria-hidden="true"></span>STUDIOS
+          </a>
+          <button
+            type="button"
+            class="topbar__burger"
+            id="nav-open"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="nav-overlay"
+            aria-haspopup="dialog"
+          >
+            <span class="topbar__burger-line" aria-hidden="true"></span>
+            <span class="topbar__burger-line" aria-hidden="true"></span>
+            <span class="topbar__burger-line" aria-hidden="true"></span>
+          </button>
+        </header>
+
+        <section class="post-inner__hero" aria-labelledby="post-inner-title">
+          <div class="post-inner__hero-media" id="post-inner-hero-media" aria-hidden="true"></div>
+          <div class="post-inner__hero-scrim" aria-hidden="true"></div>
+          <div class="post-inner__hero-layout">
+            <div class="post-inner__hero-main post-inner__hero-main--enter">
+              <p class="post-inner__category" id="post-inner-category"></p>
+              <h1 class="post-inner__title" id="post-inner-title"></h1>
+              <p class="post-inner__description" id="post-inner-description"></p>
+              <div class="post-inner__author">
+                <span class="post-inner__author-icon" aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20a8 8 0 0 1 16 0"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </span>
+                <span class="post-inner__author-name" id="post-inner-author-name"></span>
+              </div>
+              <div class="post-inner__actions">
+                <a class="post-inner__btn post-inner__btn--dark" id="post-inner-btn-edit" href="#">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4l10.5-10.5a2 2 0 0 0 0-2.83L17.33 4.5a2 2 0 0 0-2.83 0L4 15.5V20Z"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
+                    />
+                    <path d="m13 6 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                  <span>Edit</span>
+                </a>
+                <button type="button" class="post-inner__btn post-inner__btn--dark" id="post-inner-btn-delete">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span>Remove</span>
+                </button>
+                <button type="button" class="post-inner__btn post-inner__btn--accent" id="post-inner-btn-details">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 17.8 5.7 21l2.3-7-6-4.6h7.6L12 2Z"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span>Check Details</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="post-inner__hero-footer">
+              <div
+                class="posts-filter-bar post-inner__filter-bar"
+                role="toolbar"
+                aria-label="Filter related posts"
+              >
+                <div class="posts-filter-bar__segment posts-filter-bar__segment--category">
+                  <label class="visually-hidden" for="post-inner-filter-category">Category</label>
+                  <span class="posts-filter-bar__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <select id="post-inner-filter-category" class="posts-filter-bar__select">
+                    <option value="">All categories</option>
+                  </select>
+                </div>
+                <div class="posts-filter-bar__segment">
+                  <label class="visually-hidden" for="post-inner-filter-name">Filter by name</label>
+                  <input
+                    type="search"
+                    id="post-inner-filter-name"
+                    class="posts-filter-bar__input"
+                    placeholder="Filter by Name"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="posts-filter-bar__segment">
+                  <label class="visually-hidden" for="post-inner-filter-date">Filter by date</label>
+                  <input
+                    type="date"
+                    id="post-inner-filter-date"
+                    class="posts-filter-bar__input posts-filter-bar__input--date"
+                  />
+                </div>
+                <div class="posts-filter-bar__segment posts-filter-bar__segment--nav">
+                  <button
+                    type="button"
+                    class="posts-filter-bar__page-btn"
+                    id="post-inner-page-prev"
+                    aria-label="Previous page"
+                  >
+                    Page Left
+                  </button>
+                </div>
+                <div class="posts-filter-bar__segment posts-filter-bar__segment--nav">
+                  <button
+                    type="button"
+                    class="posts-filter-bar__page-btn"
+                    id="post-inner-page-next"
+                    aria-label="Next page"
+                  >
+                    Page Right
+                  </button>
+                </div>
+                <div class="posts-filter-bar__segment posts-filter-bar__segment--search">
+                  <button
+                    type="button"
+                    class="post-inner__search-btn"
+                    id="post-inner-filter-search"
+                    aria-label="Focus search"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
+                      <path d="M20 20l-4.3-4.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <p class="post-inner__related-info" id="post-inner-related-info" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="post-inner__related" id="related-posts" aria-label="Related posts">
+          <div id="post-inner-related-grid" class="post-inner__related-grid"></div>
+          <p id="post-inner-related-empty" class="post-inner__related-empty" hidden>No other posts match your filters.</p>
+        </section>
+      </div>
+    </div>
+
+    <div id="post-inner-toast" class="post-inner__toast" role="status" aria-live="polite" hidden></div>
+
+    <div
+      class="post-inner__modal"
+      id="post-inner-delete-modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="post-inner-delete-title"
+    >
+      <div class="post-inner__modal-backdrop" id="post-inner-delete-backdrop"></div>
+      <div class="post-inner__modal-panel">
+        <h2 class="post-inner__modal-title" id="post-inner-delete-title">Delete post?</h2>
+        <p class="post-inner__modal-text">Are you sure you want to delete this post?</p>
+        <div class="post-inner__modal-actions">
+          <button type="button" class="post-inner__modal-btn post-inner__modal-btn--ghost" id="post-inner-delete-cancel">
+            Cancel
+          </button>
+          <button type="button" class="post-inner__modal-btn post-inner__modal-btn--danger" id="post-inner-delete-confirm">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="nav-overlay-container"></div>
+    <script src="script.js"></script>
+  </body>
+</html>

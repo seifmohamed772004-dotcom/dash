@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit post</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="dashboard-page">
+    <main class="page-placeholder">
+      <p>
+        <a href="posts.html">← Back to posts</a>
+      </p>
+      <h1>Edit post</h1>
+      <p id="edit-hint">
+        Editor placeholder — implement editing for post ID from the URL query.
+      </p>
+    </main>
+    <script src="script.js"></script>
+    <script>
+      (function () {
+        var id = new URLSearchParams(location.search).get("id");
+        var hint = document.getElementById("edit-hint");
+        if (hint && id) {
+          hint.textContent = "Post ID: " + id + " — add your edit form here.";
+        }
+      })();
+    </script>
+  </body>
+</html>

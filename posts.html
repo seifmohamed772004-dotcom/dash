@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Posts — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body class="dashboard-page posts-page">
+    <header class="topbar">
+      <a href="overview.html" class="topbar__brand topbar__brand--studio">
+        CREE<span class="topbar__brand-mark" aria-hidden="true"></span>STUDIOS
+      </a>
+      <button
+        type="button"
+        class="topbar__burger"
+        id="nav-open"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-overlay"
+        aria-haspopup="dialog"
+      >
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+        <span class="topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <main class="posts-main">
+      <div class="posts-filter-bar" role="toolbar" aria-label="Filter posts">
+        <div class="posts-filter-bar__segment posts-filter-bar__segment--category">
+          <label class="visually-hidden" for="filter-category">Category</label>
+          <span class="posts-filter-bar__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <select id="filter-category" class="posts-filter-bar__select">
+            <option value="">All categories</option>
+          </select>
+        </div>
+        <div class="posts-filter-bar__segment">
+          <label class="visually-hidden" for="filter-name">Filter by name</label>
+          <input
+            type="search"
+            id="filter-name"
+            class="posts-filter-bar__input"
+            placeholder="Filter by Name"
+            autocomplete="off"
+          />
+        </div>
+        <div class="posts-filter-bar__segment">
+          <label class="visually-hidden" for="filter-date">Filter by date</label>
+          <input type="date" id="filter-date" class="posts-filter-bar__input posts-filter-bar__input--date" />
+        </div>
+        <div class="posts-filter-bar__segment posts-filter-bar__segment--nav">
+          <button type="button" class="posts-filter-bar__page-btn" id="page-prev" aria-label="Previous page">
+            Page Left
+          </button>
+        </div>
+        <div class="posts-filter-bar__segment posts-filter-bar__segment--nav">
+          <button type="button" class="posts-filter-bar__page-btn" id="page-next" aria-label="Next page">
+            Page Right
+          </button>
+        </div>
+      </div>
+
+      <p class="posts-page-info" id="posts-page-info" aria-live="polite"></p>
+
+      <div id="posts-toast" class="posts-toast" role="status" aria-live="polite" hidden></div>
+
+      <div class="posts-list" id="posts-list" role="feed" aria-label="Posts"></div>
+
+      <div class="posts-empty" id="posts-empty" hidden>
+        <p class="posts-empty__title">No posts found</p>
+        <a class="posts-empty__cta" href="add-page.html">Create your first post</a>
+      </div>
+    </main>
+
+    <div
+      class="modal modal--delete"
+      id="delete-modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+    >
+      <div class="modal__backdrop" id="delete-modal-backdrop"></div>
+      <div class="modal__panel">
+        <h2 class="modal__title" id="delete-modal-title">Delete post?</h2>
+        <p class="modal__text">Are you sure you want to delete this post?</p>
+        <div class="modal__actions">
+          <button type="button" class="modal__btn modal__btn--ghost" id="delete-modal-cancel">
+            Cancel
+          </button>
+          <button type="button" class="modal__btn modal__btn--danger" id="delete-modal-confirm">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="nav-overlay-container"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
