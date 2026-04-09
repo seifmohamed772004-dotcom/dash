@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pages Overview — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --pg-bg: #0d0d0d;
+        --pg-surface: #141414;
+        --pg-accent: #5be7c4;
+        --pg-text: #ededed;
+        --pg-muted: #a1a1a1;
+        --pg-border: rgba(255, 255, 255, 0.1);
+        --pg-danger: #c45c5c;
+        --pg-radius: 12px;
+        --pg-radius-sm: 4px;
+        --pg-t: 0.25s ease;
+        --pg-topbar: 56px;
+      }
+
+      html {
+        height: 100%;
+      }
+
+      body.pg-page {
+        margin: 0;
+        min-height: 100%;
+        min-height: 100dvh;
+        font-family: "Unbounded", system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--pg-text);
+        background: var(--pg-bg);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .pg-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        height: var(--pg-topbar);
+        padding-inline: 1.25rem;
+        border-bottom: 1px solid var(--pg-border);
+        background: rgba(13, 13, 13, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .pg-topbar__brand {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color var(--pg-t);
+      }
+
+      .pg-topbar__brand:hover {
+        color: var(--pg-accent);
+      }
+
+      .pg-topbar__burger {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border: none;
+        border-radius: var(--pg-radius-sm);
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        transition: background var(--pg-t), color var(--pg-t);
+      }
+
+      .pg-topbar__burger:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--pg-accent);
+      }
+
+      .pg-topbar__burger-line {
+        display: block;
+        height: 2px;
+        width: 1.35rem;
+        margin-inline: auto;
+        background: currentColor;
+        border-radius: 1px;
+      }
+
+      .pg-wrap {
+        flex: 1;
+        width: 100%;
+        max-width: 1280px;
+        margin-inline: auto;
+        padding: 1.25rem clamp(0.75rem, 2vw, 1.5rem) 2.5rem;
+      }
+
+      .pg-head {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .pg-title {
+        margin: 0;
+        font-size: clamp(1.2rem, 3.5vw, 1.65rem);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .pg-title__w {
+        color: var(--pg-text);
+      }
+
+      .pg-title__a {
+        color: var(--pg-accent);
+      }
+
+      .pg-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        border-radius: var(--pg-radius-sm);
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform var(--pg-t), background var(--pg-t), color var(--pg-t), box-shadow var(--pg-t);
+      }
+
+      .pg-btn:hover {
+        transform: scale(1.02);
+      }
+
+      .pg-btn:active {
+        transform: scale(0.98);
+      }
+
+      .pg-btn--primary {
+        color: #0a0a0a;
+        background: var(--pg-accent);
+        border-color: var(--pg-accent);
+      }
+
+      .pg-btn--primary:hover {
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.35);
+      }
+
+      .pg-btn--ghost {
+        color: var(--pg-text);
+        background: transparent;
+        border-color: var(--pg-border);
+      }
+
+      .pg-btn--ghost:hover {
+        border-color: var(--pg-accent);
+        color: var(--pg-accent);
+      }
+
+      .pg-btn--icon {
+        padding: 0.4rem;
+        min-width: 2.25rem;
+        min-height: 2.25rem;
+      }
+
+      .pg-toolbar {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .pg-tabs {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+
+      .pg-tab {
+        padding: 0.4rem 0.85rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius-sm);
+        background: transparent;
+        font-family: inherit;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pg-muted);
+        cursor: pointer;
+        transition: background var(--pg-t), color var(--pg-t), border-color var(--pg-t);
+      }
+
+      .pg-tab:hover {
+        color: var(--pg-text);
+        border-color: rgba(91, 231, 196, 0.35);
+      }
+
+      .pg-tab.is-active {
+        color: #0a0a0a;
+        background: var(--pg-accent);
+        border-color: var(--pg-accent);
+      }
+
+      .pg-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .pg-stat {
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
+        background: var(--pg-surface);
+        transition: border-color var(--pg-t), box-shadow var(--pg-t);
+      }
+
+      .pg-stat:hover {
+        border-color: rgba(91, 231, 196, 0.2);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      }
+
+      .pg-stat__label {
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--pg-muted);
+        margin-bottom: 0.35rem;
+      }
+
+      .pg-stat__val {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--pg-text);
+        line-height: 1.15;
+      }
+
+      .pg-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
+        background: var(--pg-surface);
+      }
+
+      .pg-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+      }
+
+      .pg-table th {
+        padding: 0.65rem 0.75rem;
+        text-align: start;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pg-accent);
+        border-bottom: 1px solid var(--pg-border);
+        background: rgba(0, 0, 0, 0.25);
+      }
+
+      .pg-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--pg-border);
+        vertical-align: middle;
+      }
+
+      .pg-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .pg-table tbody tr {
+        transition: background var(--pg-t);
+      }
+
+      .pg-table tbody tr:hover {
+        background: rgba(91, 231, 196, 0.04);
+      }
+
+      .pg-path {
+        font-weight: 700;
+        color: var(--pg-text);
+      }
+
+      .pg-path__sub {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.72rem;
+        font-weight: 400;
+        color: var(--pg-muted);
+      }
+
+      .pg-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--pg-radius-sm);
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid;
+      }
+
+      .pg-badge--pub {
+        color: var(--pg-accent);
+        border-color: rgba(91, 231, 196, 0.45);
+        background: rgba(91, 231, 196, 0.08);
+      }
+
+      .pg-badge--draft {
+        color: var(--pg-muted);
+        border-color: var(--pg-border);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .pg-retention {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 100px;
+      }
+
+      .pg-retention__bar {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        min-width: 48px;
+      }
+
+      .pg-retention__fill {
+        height: 100%;
+        border-radius: 3px;
+        background: var(--pg-accent);
+        transition: width var(--pg-t);
+      }
+
+      .pg-actions {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 0.35rem;
+        justify-content: flex-end;
+      }
+
+      .pg-actions .pg-btn {
+        color: var(--pg-muted);
+      }
+
+      .pg-actions .pg-btn:hover {
+        color: var(--pg-accent);
+      }
+
+      .pg-empty {
+        padding: 2.5rem 1rem;
+        text-align: center;
+        color: var(--pg-muted);
+        border: 1px dashed var(--pg-border);
+        border-radius: var(--pg-radius);
+      }
+
+      .pg-cards {
+        display: none;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .pg-card {
+        padding: 1rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
+        background: var(--pg-surface);
+      }
+
+      .pg-card__row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--pg-muted);
+      }
+
+      .pg-modal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--pg-t), visibility var(--pg-t);
+      }
+
+      .pg-modal-bg.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .pg-modal {
+        width: min(420px, 100%);
+        padding: 1.25rem 1.35rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
+        background: #121212;
+        transform: scale(0.96);
+        transition: transform var(--pg-t);
+      }
+
+      .pg-modal-bg.is-open .pg-modal {
+        transform: scale(1);
+      }
+
+      .pg-modal__title {
+        margin: 0 0 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--pg-text);
+      }
+
+      .pg-field {
+        margin-bottom: 0.85rem;
+      }
+
+      .pg-field__label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--pg-muted);
+      }
+
+      .pg-input,
+      .pg-select {
+        width: 100%;
+        padding: 0.5rem 0.6rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius-sm);
+        background: #0a0a0a;
+        color: var(--pg-text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        outline: none;
+        transition: border-color var(--pg-t), box-shadow var(--pg-t);
+      }
+
+      .pg-input:focus,
+      .pg-select:focus {
+        border-color: var(--pg-accent);
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.12);
+      }
+
+      .pg-field__err {
+        margin: 0.25rem 0 0;
+        font-size: 0.7rem;
+        color: var(--pg-danger);
+        min-height: 1em;
+      }
+
+      .pg-modal__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .pg-toast {
+        position: fixed;
+        inset-inline-end: 1rem;
+        inset-block-end: 1rem;
+        z-index: 300;
+        padding: 0.65rem 1rem;
+        border-radius: var(--pg-radius-sm);
+        background: #1e1e1e;
+        border: 1px solid var(--pg-border);
+        color: var(--pg-text);
+        font-size: 0.78rem;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+
+      .pg-toast.is-show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .pg-overlay-nav {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--pg-t), visibility var(--pg-t);
+      }
+
+      .pg-overlay-nav.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .pg-overlay-nav__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .pg-overlay-nav__panel {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: min(300px, 100%);
+        padding: 1.25rem;
+        border-radius: var(--pg-radius);
+        background: #121212;
+        border: 1px solid var(--pg-border);
+      }
+
+      .pg-overlay-nav__close {
+        align-self: flex-end;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius-sm);
+        background: transparent;
+        color: var(--pg-text);
+        font-family: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+
+      .pg-overlay-nav__link {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--pg-radius-sm);
+        color: var(--pg-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: color var(--pg-t), background var(--pg-t);
+      }
+
+      .pg-overlay-nav__link:hover {
+        color: var(--pg-accent);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      @media (max-width: 900px) {
+        .pg-stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .pg-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .pg-table-wrap {
+          display: none;
+        }
+
+        .pg-cards {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+  <body class="pg-page">
+    <header class="pg-topbar">
+      <a href="overview.html" class="pg-topbar__brand">CREESTUDIOS</a>
+      <button
+        type="button"
+        class="pg-topbar__burger"
+        id="pg-burger"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="pg-nav-overlay"
+      >
+        <span class="pg-topbar__burger-line" aria-hidden="true"></span>
+        <span class="pg-topbar__burger-line" aria-hidden="true"></span>
+        <span class="pg-topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <div class="pg-wrap">
+      <div class="pg-head">
+        <h1 class="pg-title">
+          <span class="pg-title__w">Pages</span> <span class="pg-title__a">Overview</span>
+        </h1>
+        <button type="button" class="pg-btn pg-btn--primary" id="pg-btn-new">+ New page</button>
+      </div>
+
+      <div class="pg-toolbar">
+        <div class="pg-tabs" role="tablist" aria-label="Filter pages">
+          <button type="button" class="pg-tab is-active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="pg-tab" data-filter="published" role="tab" aria-selected="false">Published</button>
+          <button type="button" class="pg-tab" data-filter="draft" role="tab" aria-selected="false">Draft</button>
+        </div>
+      </div>
+
+      <div class="pg-stats" id="pg-stats"></div>
+
+      <div class="pg-table-wrap" id="pg-table-wrap">
+        <table class="pg-table" aria-label="Pages">
+          <thead>
+            <tr>
+              <th>Page path</th>
+              <th>Status</th>
+              <th>Views</th>
+              <th>Retention</th>
+              <th>Bounce rate</th>
+              <th>Avg time</th>
+              <th style="text-align: end">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pg-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pg-cards" id="pg-cards" aria-live="polite"></div>
+    </div>
+
+    <div id="pg-modal" class="pg-modal-bg" aria-hidden="true">
+      <div class="pg-modal" role="dialog" aria-modal="true" aria-labelledby="pg-modal-title">
+        <h2 class="pg-modal__title" id="pg-modal-title">New page</h2>
+        <form id="pg-form" novalidate>
+          <input type="hidden" id="pg-edit-id" value="" />
+          <div class="pg-field">
+            <label class="pg-field__label" for="pg-in-path">Page path</label>
+            <input type="text" id="pg-in-path" class="pg-input" placeholder="/home" required autocomplete="off" />
+            <p class="pg-field__err" id="pg-err-path"></p>
+          </div>
+          <div class="pg-field">
+            <label class="pg-field__label" for="pg-in-title">Title</label>
+            <input type="text" id="pg-in-title" class="pg-input" placeholder="Homepage - Welcome" required autocomplete="off" />
+            <p class="pg-field__err" id="pg-err-title"></p>
+          </div>
+          <div class="pg-field">
+            <label class="pg-field__label" for="pg-in-status">Status</label>
+            <select id="pg-in-status" class="pg-select" required>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+          <div class="pg-modal__actions">
+            <button type="button" class="pg-btn pg-btn--ghost" id="pg-btn-cancel">Cancel</button>
+            <button type="submit" class="pg-btn pg-btn--primary" id="pg-btn-save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="pg-nav-overlay" class="pg-overlay-nav" hidden aria-hidden="true">
+      <div class="pg-overlay-nav__backdrop" data-pg-close-nav></div>
+      <div class="pg-overlay-nav__panel">
+        <button type="button" class="pg-overlay-nav__close" data-pg-close-nav>Close</button>
+        <a href="overview.html" class="pg-overlay-nav__link">Overview</a>
+        <a href="posts.html" class="pg-overlay-nav__link">Posts</a>
+        <a href="pages.html" class="pg-overlay-nav__link">Pages</a>
+        <a href="settings.html" class="pg-overlay-nav__link">Settings</a>
+      </div>
+    </div>
+
+    <div id="pg-toast" class="pg-toast" role="status" aria-live="polite"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var STORAGE_KEY = "dashboard_pages";
+        var currentFilter = "all";
+        var editingId = null;
+
+        function randInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function randomAnalytics() {
+          return {
+            views: randInt(1200, 120000),
+            retention: randInt(35, 92),
+            bounce: randInt(8, 55),
+            avgTime: randInt(0, 4) + "m " + randInt(0, 59) + "s",
+          };
+        }
+
+        function newId() {
+          return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+        }
+
+        function defaultPages() {
+          return [
+            {
+              id: "p_seed_1",
+              path: "/home",
+              title: "Homepage - Welcome",
+              status: "published",
+              views: 45230,
+              retention: 78,
+              bounce: 22,
+              avgTime: "3m 45s",
+            },
+            {
+              id: "p_seed_2",
+              path: "/about",
+              title: "About our studio",
+              status: "published",
+              views: 12840,
+              retention: 62,
+              bounce: 31,
+              avgTime: "2m 12s",
+            },
+            {
+              id: "p_seed_3",
+              path: "/blog/draft-post",
+              title: "Upcoming article",
+              status: "draft",
+              views: 0,
+              retention: 0,
+              bounce: 0,
+              avgTime: "0m 0s",
+            },
+          ];
+        }
+
+        function loadPages() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+              var seed = defaultPages();
+              savePages(seed);
+              return seed.slice();
+            }
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            return defaultPages();
+          }
+        }
+
+        function savePages(list) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        }
+
+        function filterPages(list, filter) {
+          if (filter === "published") return list.filter(function (p) { return p.status === "published"; });
+          if (filter === "draft") return list.filter(function (p) { return p.status === "draft"; });
+          return list.slice();
+        }
+
+        function calculateStats(list) {
+          var n = list.length;
+          var totalViews = list.reduce(function (s, p) { return s + (p.views || 0); }, 0);
+          var avgRet =
+            n > 0
+              ? Math.round(list.reduce(function (s, p) { return s + (p.retention || 0); }, 0) / n)
+              : 0;
+          var pub = list.filter(function (p) { return p.status === "published"; }).length;
+          var dr = list.filter(function (p) { return p.status === "draft"; }).length;
+          return {
+            total: n,
+            totalViews: totalViews,
+            avgRetention: avgRet,
+            published: pub,
+            draft: dr,
+          };
+        }
+
+        function renderStats(list) {
+          var s = calculateStats(list);
+          var el = document.getElementById("pg-stats");
+          if (!el) return;
+          el.innerHTML =
+            '<div class="pg-stat"><div class="pg-stat__label">Total pages</div><div class="pg-stat__val">' +
+            s.total +
+            '</div></div><div class="pg-stat"><div class="pg-stat__label">Total views</div><div class="pg-stat__val">' +
+            s.totalViews.toLocaleString("en-US") +
+            '</div></div><div class="pg-stat"><div class="pg-stat__label">Avg retention</div><div class="pg-stat__val">' +
+            s.avgRetention +
+            '%</div></div><div class="pg-stat"><div class="pg-stat__label">Published / Draft</div><div class="pg-stat__val">' +
+            s.published +
+            " / " +
+            s.draft +
+            "</div></div>";
+        }
+
+        function iconEdit() {
+          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+        }
+
+        function iconTrash() {
+          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+        }
+
+        function iconEye() {
+          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/></svg>';
+        }
+
+        function renderTable() {
+          var all = loadPages();
+          renderStats(all);
+          var rows = filterPages(all, currentFilter);
+          var tbody = document.getElementById("pg-tbody");
+          var cards = document.getElementById("pg-cards");
+
+          if (tbody) tbody.innerHTML = "";
+          if (cards) cards.innerHTML = "";
+
+          if (rows.length === 0) {
+            if (tbody) {
+              var trE = document.createElement("tr");
+              var tdE = document.createElement("td");
+              tdE.colSpan = 7;
+              tdE.className = "pg-empty";
+              tdE.style.textAlign = "center";
+              tdE.textContent = "No pages yet";
+              trE.appendChild(tdE);
+              tbody.appendChild(trE);
+            }
+            if (cards) {
+              var e2 = document.createElement("div");
+              e2.className = "pg-empty";
+              e2.textContent = "No pages yet";
+              cards.appendChild(e2);
+            }
+            return;
+          }
+
+          rows.forEach(function (p) {
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+              "<td>" +
+              '<div class="pg-path">' +
+              escapeHtml(p.path) +
+              '<span class="pg-path__sub">' +
+              escapeHtml(p.title) +
+              "</span></div></td>" +
+              "<td>" +
+              statusBadge(p.status) +
+              "</td>" +
+              "<td>" +
+              (p.views || 0).toLocaleString("en-US") +
+              "</td>" +
+              "<td>" +
+              retentionCell(p.retention) +
+              "</td>" +
+              "<td>" +
+              (p.bounce != null ? p.bounce + "%" : "—") +
+              "</td>" +
+              "<td>" +
+              escapeHtml(p.avgTime || "—") +
+              "</td>" +
+              '<td><div class="pg-actions">' +
+              '<button type="button" class="pg-btn pg-btn--ghost pg-btn--icon" data-act="edit" data-id="' +
+              escapeAttr(p.id) +
+              '" title="Edit">' +
+              iconEdit() +
+              "</button>" +
+              '<button type="button" class="pg-btn pg-btn--ghost pg-btn--icon" data-act="del" data-id="' +
+              escapeAttr(p.id) +
+              '" title="Delete">' +
+              iconTrash() +
+              "</button>" +
+              '<button type="button" class="pg-btn pg-btn--ghost pg-btn--icon" data-act="toggle" data-id="' +
+              escapeAttr(p.id) +
+              '" title="Toggle publish">' +
+              iconEye() +
+              "</button>" +
+              "</div></td>";
+
+            tr.querySelector("[data-act=edit]").addEventListener("click", function () {
+              openModalEdit(p.id);
+            });
+            tr.querySelector("[data-act=del]").addEventListener("click", function () {
+              deletePage(p.id);
+            });
+            tr.querySelector("[data-act=toggle]").addEventListener("click", function () {
+              toggleStatus(p.id);
+            });
+            if (tbody) tbody.appendChild(tr);
+
+            var card = document.createElement("article");
+            card.className = "pg-card";
+            card.innerHTML =
+              '<div class="pg-path">' +
+              escapeHtml(p.path) +
+              '<span class="pg-path__sub">' +
+              escapeHtml(p.title) +
+              "</span></div>" +
+              "<div>" +
+              statusBadge(p.status) +
+              "</div>" +
+              '<div class="pg-card__row"><span>Views</span><span>' +
+              (p.views || 0).toLocaleString("en-US") +
+              "</span></div>" +
+              '<div class="pg-card__row"><span>Retention</span><span>' +
+              (p.retention != null ? p.retention + "%" : "—") +
+              "</span></div>" +
+              '<div class="pg-card__row"><span>Bounce</span><span>' +
+              (p.bounce != null ? p.bounce + "%" : "—") +
+              "</span></div>" +
+              '<div class="pg-card__row"><span>Avg time</span><span>' +
+              escapeHtml(p.avgTime || "—") +
+              "</span></div>" +
+              '<div class="pg-actions" style="margin-top:0.75rem;justify-content:flex-start">' +
+              '<button type="button" class="pg-btn pg-btn--ghost pg-btn--icon" data-act="edit" data-id="' +
+              escapeAttr(p.id) +
+              '">' +
+              iconEdit() +
+              "</button>" +
+              '<button type="button" class="pg-btn pg-btn--ghost pg-btn--icon" data-act="del" data-id="' +
+              escapeAttr(p.id) +
+              '">' +
+              iconTrash() +
+              "</button>" +
+              '<button type="button" class="pg-btn pg-btn--ghost pg-btn--icon" data-act="toggle" data-id="' +
+              escapeAttr(p.id) +
+              '">' +
+              iconEye() +
+              "</button>" +
+              "</div>";
+            card.querySelector("[data-act=edit]").addEventListener("click", function () {
+              openModalEdit(p.id);
+            });
+            card.querySelector("[data-act=del]").addEventListener("click", function () {
+              deletePage(p.id);
+            });
+            card.querySelector("[data-act=toggle]").addEventListener("click", function () {
+              toggleStatus(p.id);
+            });
+            if (cards) cards.appendChild(card);
+          });
+        }
+
+        function escapeHtml(s) {
+          return String(s || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        function escapeAttr(s) {
+          return String(s || "").replace(/"/g, "&quot;");
+        }
+
+        function statusBadge(status) {
+          var pub = status === "published";
+          return (
+            '<span class="pg-badge ' +
+            (pub ? "pg-badge--pub" : "pg-badge--draft") +
+            '">' +
+            (pub ? "Published" : "Draft") +
+            "</span>"
+          );
+        }
+
+        function retentionCell(pct) {
+          var v = Math.max(0, Math.min(100, pct || 0));
+          return (
+            '<div class="pg-retention"><div class="pg-retention__bar"><div class="pg-retention__fill" style="width:' +
+            v +
+            '%"></div></div><span>' +
+            v +
+            "%</span></div>"
+          );
+        }
+
+        function addPage(entry) {
+          var list = loadPages();
+          list.push(entry);
+          savePages(list);
+          renderTable();
+          showToast("Page added");
+        }
+
+        function updatePage(entry) {
+          var list = loadPages();
+          var i = list.findIndex(function (x) {
+            return x.id === entry.id;
+          });
+          if (i === -1) return;
+          list[i] = entry;
+          savePages(list);
+          renderTable();
+          showToast("Page saved");
+        }
+
+        function deletePage(id) {
+          if (!window.confirm("Delete this page?")) return;
+          var list = loadPages().filter(function (x) {
+            return x.id !== id;
+          });
+          savePages(list);
+          renderTable();
+          showToast("Page removed");
+        }
+
+        function toggleStatus(id) {
+          var list = loadPages();
+          var i = list.findIndex(function (x) {
+            return x.id === id;
+          });
+          if (i === -1) return;
+          list[i].status = list[i].status === "published" ? "draft" : "published";
+          savePages(list);
+          renderTable();
+          showToast("Status updated");
+        }
+
+        function openModalNew() {
+          editingId = null;
+          document.getElementById("pg-modal-title").textContent = "New page";
+          document.getElementById("pg-edit-id").value = "";
+          document.getElementById("pg-in-path").value = "";
+          document.getElementById("pg-in-title").value = "";
+          document.getElementById("pg-in-status").value = "published";
+          document.getElementById("pg-err-path").textContent = "";
+          document.getElementById("pg-err-title").textContent = "";
+          openModal();
+        }
+
+        function openModalEdit(id) {
+          var list = loadPages();
+          var p = list.find(function (x) {
+            return x.id === id;
+          });
+          if (!p) return;
+          editingId = id;
+          document.getElementById("pg-modal-title").textContent = "Edit page";
+          document.getElementById("pg-edit-id").value = id;
+          document.getElementById("pg-in-path").value = p.path;
+          document.getElementById("pg-in-title").value = p.title;
+          document.getElementById("pg-in-status").value = p.status;
+          document.getElementById("pg-err-path").textContent = "";
+          document.getElementById("pg-err-title").textContent = "";
+          openModal();
+        }
+
+        function openModal() {
+          var m = document.getElementById("pg-modal");
+          m.classList.add("is-open");
+          m.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeModal() {
+          var m = document.getElementById("pg-modal");
+          m.classList.remove("is-open");
+          m.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+          editingId = null;
+        }
+
+        function normalizePath(path) {
+          var p = String(path || "").trim();
+          if (!p) return "";
+          if (p[0] !== "/") p = "/" + p;
+          return p.replace(/\/+/g, "/");
+        }
+
+        var toastTimer;
+        function showToast(msg) {
+          var t = document.getElementById("pg-toast");
+          if (!t) return;
+          t.textContent = msg;
+          t.classList.add("is-show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () {
+            t.classList.remove("is-show");
+          }, 2200);
+        }
+
+        document.getElementById("pg-btn-new").addEventListener("click", openModalNew);
+        document.getElementById("pg-btn-cancel").addEventListener("click", closeModal);
+        document.getElementById("pg-modal").addEventListener("click", function (e) {
+          if (e.target.id === "pg-modal") closeModal();
+        });
+
+        document.getElementById("pg-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var pathIn = document.getElementById("pg-in-path");
+          var titleIn = document.getElementById("pg-in-title");
+          var statusIn = document.getElementById("pg-in-status");
+          var errPath = document.getElementById("pg-err-path");
+          var errTitle = document.getElementById("pg-err-title");
+          errPath.textContent = "";
+          errTitle.textContent = "";
+
+          var path = normalizePath(pathIn.value);
+          var title = titleIn.value.trim();
+          if (!path) {
+            errPath.textContent = "Path is required.";
+            return;
+          }
+          if (!title) {
+            errTitle.textContent = "Title is required.";
+            return;
+          }
+
+          var list = loadPages();
+          var dup = list.some(function (p) {
+            return p.path === path && p.id !== editingId;
+          });
+          if (dup) {
+            errPath.textContent = "This path already exists.";
+            return;
+          }
+
+          var status = statusIn.value;
+
+          if (editingId) {
+            var prev = list.find(function (x) {
+              return x.id === editingId;
+            });
+            if (!prev) return;
+            updatePage({
+              id: prev.id,
+              path: path,
+              title: title,
+              status: status,
+              views: prev.views,
+              retention: prev.retention,
+              bounce: prev.bounce,
+              avgTime: prev.avgTime,
+            });
+          } else {
+            var a = randomAnalytics();
+            addPage({
+              id: newId(),
+              path: path,
+              title: title,
+              status: status,
+              views: a.views,
+              retention: a.retention,
+              bounce: a.bounce,
+              avgTime: a.avgTime,
+            });
+          }
+          closeModal();
+        });
+
+        document.querySelectorAll(".pg-tab[data-filter]").forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            currentFilter = tab.getAttribute("data-filter");
+            document.querySelectorAll(".pg-tab[data-filter]").forEach(function (t) {
+              var on = t === tab;
+              t.classList.toggle("is-active", on);
+              t.setAttribute("aria-selected", on ? "true" : "false");
+            });
+            renderTable();
+          });
+        });
+
+        var nav = document.getElementById("pg-nav-overlay");
+        var burger = document.getElementById("pg-burger");
+        function openNav() {
+          nav.removeAttribute("hidden");
+          nav.setAttribute("aria-hidden", "false");
+          nav.classList.add("is-open");
+          if (burger) burger.setAttribute("aria-expanded", "true");
+          document.body.style.overflow = "hidden";
+        }
+        function closeNav() {
+          nav.classList.remove("is-open");
+          nav.setAttribute("aria-hidden", "true");
+          if (burger) burger.setAttribute("aria-expanded", "false");
+          document.body.style.overflow = "";
+          setTimeout(function () {
+            nav.setAttribute("hidden", "");
+          }, 250);
+        }
+        if (burger) {
+          burger.addEventListener("click", function () {
+            if (nav.classList.contains("is-open")) closeNav();
+            else openNav();
+          });
+        }
+        document.querySelectorAll("[data-pg-close-nav]").forEach(function (el) {
+          el.addEventListener("click", closeNav);
+        });
+
+        renderTable();
+
+        window.PagesAdmin = {
+          loadPages: loadPages,
+          savePages: savePages,
+          renderTable: renderTable,
+          addPage: addPage,
+          updatePage: updatePage,
+          deletePage: deletePage,
+          toggleStatus: toggleStatus,
+          filterPages: filterPages,
+          calculateStats: calculateStats,
+        };
+      })();
+    </script>
+  </body>
+</html>
