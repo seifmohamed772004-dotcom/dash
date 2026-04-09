@@ -983,15 +983,27 @@ body.login-page {
 .nav-overlay__backdrop {
   position: absolute;
   inset: 0;
-  z-index: 0;
-  background: rgba(0, 0, 0, 0.85);
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
+.nav-overlay__bg-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+  filter: brightness(0.5) saturate(0.8);
+  pointer-events: none;
+}
+
 .nav-overlay__panel {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -1103,22 +1115,23 @@ body.login-page {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(0.65rem, 2.5vh, 1.15rem);
+  gap: 24px;
   padding: 1.5rem 1.25rem 2rem;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .nav-overlay__link {
-  font-family: var(--font-body);
-  font-size: clamp(1rem, 3.5vw, 1.35rem);
+  font-family: var(--font-title);
+  font-size: 32px;
   font-weight: 700;
+  line-height: 1;
   letter-spacing: 0.12em;
   color: var(--nav-overlay-muted);
   text-decoration: none;
   text-transform: uppercase;
   text-align: center;
-  padding: 0.35rem 0.75rem;
+  padding: 0;
   border-radius: var(--radius-input);
   opacity: 0;
   transform: translateY(8px);

@@ -12,10 +12,13 @@
 
   var NAV_OVERLAY_HTML =
     '<div id="nav-overlay" class="nav-overlay" hidden role="dialog" aria-modal="true" aria-hidden="true" aria-label="Site navigation">' +
+    '<video class="nav-overlay__bg-video" autoplay muted loop playsinline aria-hidden="true">' +
+    '<source src="Assets/Background Video.mp4" type="video/mp4">' +
+    "</video>" +
     '<div class="nav-overlay__backdrop" data-nav-overlay-backdrop></div>' +
     '<div class="nav-overlay__panel">' +
     '<header class="nav-overlay__topbar">' +
-    '<a href="overview.html" class="nav-overlay__logo">CREESTUDIOS</a>' +
+    '<a href="overview.html" class="nav-overlay__logo"><img src="Assets/Login Logo.png" alt="CREESTUDIOS" style="height:16px;width:auto;display:block"></a>' +
     '<button type="button" class="nav-overlay__close" id="nav-overlay-close-btn" aria-label="Close menu">' +
     '<span class="nav-overlay__close-icon" aria-hidden="true"></span>' +
     "</button>" +
@@ -24,10 +27,12 @@
     '<a href="overview.html" class="nav-overlay__link">Overview</a>' +
     '<a href="posts.html" class="nav-overlay__link">Posts</a>' +
     '<a href="users.html" class="nav-overlay__link">Users</a>' +
-    '<a href="overview.html" class="nav-overlay__link">Statistics</a>' +
+    '<a href="analytics.html" class="nav-overlay__link">Analytics</a>' +
+    '<a href="media.html" class="nav-overlay__link">Media Library</a>' +
+    '<a href="features.html" class="nav-overlay__link">Features</a>' +
     '<a href="settings.html" class="nav-overlay__link">Settings</a>' +
     '<a href="notifications.html" class="nav-overlay__link">Notifications</a>' +
-    '<a href="add-page.html" class="nav-overlay__link">Add Page</a>' +
+    '<a href="all-pages.html" class="nav-overlay__link">All Pages</a>' +
     '<a href="reports.html" class="nav-overlay__link">Reports</a>' +
     "</nav>" +
     '<button type="button" class="nav-overlay__logout" id="nav-overlay-logout">Logout</button>' +
