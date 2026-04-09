@@ -3063,6 +3063,11 @@
         var reader = new FileReader();
         reader.onload = function () {
           urlInput.value = reader.result;
+          var mid = document.getElementById("add-page-featured-media-id");
+          if (mid) mid.value = "";
+          if (typeof window.__addPageFeaturedPreviewUpdate === "function") {
+            window.__addPageFeaturedPreviewUpdate();
+          }
         };
         reader.readAsDataURL(f);
       }
@@ -3198,6 +3203,237 @@
     });
   }
 
+  var ADD_PAGE_MEDIA_KEY = "dashboard_media";
+
+  function loadMediaLibrary() {
+    try {
+      var raw = localStorage.getItem(ADD_PAGE_MEDIA_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveMediaLibrary(list) {
+    try {
+      localStorage.setItem(ADD_PAGE_MEDIA_KEY, JSON.stringify(list));
+      return true;
+    } catch (e) {
+      window.alert("Could not save media library.");
+      return false;
+    }
+  }
+
+  function addPagePickerFormatBytes(bytes) {
+    if (bytes < 1024) return Math.round(bytes) + " B";
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1048576).toFixed(1) + " MB";
+  }
+
+  function addPagePickerNewMediaId() {
+    return "m_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+  }
+
+  function addPagePickerTodayISO() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function initAddPageImagePicker() {
+    var picker = document.getElementById("add-page-media-picker");
+    var grid = document.getElementById("add-page-picker-grid");
+    var emptyEl = document.getElementById("add-page-picker-empty");
+    var useBtn = document.getElementById("add-page-picker-use");
+    var urlInput = document.getElementById("add-page-featured-url");
+    var mediaIdInput = document.getElementById("add-page-featured-media-id");
+    var previewWrap = document.getElementById("add-page-featured-preview-wrap");
+    var previewImg = document.getElementById("add-page-featured-preview-img");
+    var clearBtn = document.getElementById("add-page-clear-featured");
+    var selectBtn = document.getElementById("add-page-select-media");
+    var pickerFile = document.getElementById("add-page-picker-file");
+    var uploadBtn = document.getElementById("add-page-picker-upload-btn");
+    var featuredFile = document.getElementById("add-page-featured-file");
+
+    if (!picker || !grid || !urlInput) return;
+
+    var selectedPickerId = null;
+
+    function renderPickerGrid() {
+      var list = loadMediaLibrary();
+      grid.innerHTML = "";
+      if (emptyEl) {
+        emptyEl.hidden = list.length > 0;
+      }
+      if (list.length === 0) {
+        selectedPickerId = null;
+        if (useBtn) useBtn.disabled = true;
+        return;
+      }
+      list.forEach(function (item) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "add-page-media-picker__item";
+        btn.setAttribute("data-id", item.id);
+        if (selectedPickerId === item.id) btn.classList.add("is-selected");
+        var img = document.createElement("img");
+        img.src = item.src;
+        img.alt = item.title || "";
+        var badge = document.createElement("span");
+        badge.className = "add-page-media-picker__item-badge";
+        badge.textContent = item.used ? "Used" : "Unused";
+        btn.appendChild(img);
+        btn.appendChild(badge);
+        btn.addEventListener("click", function () {
+          selectedPickerId = item.id;
+          grid.querySelectorAll(".add-page-media-picker__item").forEach(function (el) {
+            el.classList.toggle("is-selected", el.getAttribute("data-id") === selectedPickerId);
+          });
+          if (useBtn) useBtn.disabled = false;
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function openPicker() {
+      selectedPickerId = mediaIdInput && mediaIdInput.value ? mediaIdInput.value : null;
+      renderPickerGrid();
+      if (useBtn) useBtn.disabled = !selectedPickerId;
+      picker.removeAttribute("hidden");
+      picker.classList.add("is-open");
+      picker.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closePicker() {
+      picker.classList.remove("is-open");
+      picker.setAttribute("aria-hidden", "true");
+      picker.setAttribute("hidden", "");
+      document.body.style.overflow = "";
+    }
+
+    function markFeaturedMediaUsed(newId) {
+      var list = loadMediaLibrary();
+      var prevId = mediaIdInput ? mediaIdInput.value : "";
+      if (prevId && prevId !== newId) {
+        var pi = list.findIndex(function (x) {
+          return x.id === prevId;
+        });
+        if (pi !== -1) list[pi].used = false;
+      }
+      if (newId) {
+        var ni = list.findIndex(function (x) {
+          return x.id === newId;
+        });
+        if (ni !== -1) list[ni].used = true;
+      }
+      saveMediaLibrary(list);
+    }
+
+    function applySelectedImage() {
+      if (!selectedPickerId) return;
+      var list = loadMediaLibrary();
+      var item = list.find(function (x) {
+        return x.id === selectedPickerId;
+      });
+      if (!item) return;
+      markFeaturedMediaUsed(item.id);
+      if (mediaIdInput) mediaIdInput.value = item.id;
+      urlInput.value = item.src;
+      updateFeaturedPreview();
+      closePicker();
+    }
+
+    function updateFeaturedPreview() {
+      var u = urlInput.value || "";
+      if (previewWrap && previewImg) {
+        if (u) {
+          previewImg.src = u;
+          previewImg.alt = "Featured preview";
+          previewWrap.hidden = false;
+          if (clearBtn) clearBtn.hidden = false;
+        } else {
+          previewWrap.hidden = true;
+          previewImg.src = "";
+          if (clearBtn) clearBtn.hidden = true;
+        }
+      }
+    }
+
+    window.__addPageFeaturedPreviewUpdate = updateFeaturedPreview;
+    updateFeaturedPreview();
+
+    if (selectBtn) selectBtn.addEventListener("click", openPicker);
+
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function () {
+        var prevId = mediaIdInput ? mediaIdInput.value : "";
+        if (prevId) {
+          var list = loadMediaLibrary();
+          var pi = list.findIndex(function (x) {
+            return x.id === prevId;
+          });
+          if (pi !== -1) {
+            list[pi].used = false;
+            saveMediaLibrary(list);
+          }
+        }
+        urlInput.value = "";
+        if (mediaIdInput) mediaIdInput.value = "";
+        if (featuredFile) featuredFile.value = "";
+        updateFeaturedPreview();
+      });
+    }
+
+    var closeBtn = document.getElementById("add-page-picker-close");
+    if (closeBtn) closeBtn.addEventListener("click", closePicker);
+    picker.querySelectorAll("[data-picker-close]").forEach(function (el) {
+      el.addEventListener("click", closePicker);
+    });
+    if (useBtn) useBtn.addEventListener("click", applySelectedImage);
+
+    if (uploadBtn && pickerFile) {
+      uploadBtn.addEventListener("click", function () {
+        pickerFile.click();
+      });
+      pickerFile.addEventListener("change", function () {
+        var file = pickerFile.files && pickerFile.files[0];
+        pickerFile.value = "";
+        if (!file || !file.type.match(/^image\//)) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          var entry = {
+            id: addPagePickerNewMediaId(),
+            src: reader.result,
+            title: file.name.replace(/\.[^.]+$/, "") || "Untitled",
+            description: "",
+            size: addPagePickerFormatBytes(file.size),
+            date: addPagePickerTodayISO(),
+            used: false,
+          };
+          var list = loadMediaLibrary();
+          list.unshift(entry);
+          if (!saveMediaLibrary(list)) return;
+          selectedPickerId = entry.id;
+          renderPickerGrid();
+          if (useBtn) useBtn.disabled = false;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (!picker.classList.contains("is-open")) return;
+      e.preventDefault();
+      closePicker();
+    });
+  }
+
   function initAddPage() {
     var form = document.getElementById("add-page-form");
     if (!form) return;
@@ -3235,6 +3471,7 @@
     initAddPageTagPills();
     initAddPageTagSuggestions();
     initAddPageFileUploads();
+    initAddPageImagePicker();
     initAddPageSeoPreview();
     initAddPageRtl();
 

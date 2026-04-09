@@ -179,6 +179,22 @@
 
               <div class="add-page__upload-block">
                 <p class="add-page__field-label">Featured image</p>
+                <div class="add-page__featured-toolbar">
+                  <button type="button" class="add-page__btn add-page__btn--ghost" id="add-page-select-media">
+                    Select image
+                  </button>
+                  <button type="button" class="add-page__btn add-page__btn--ghost" id="add-page-clear-featured" hidden>
+                    Clear
+                  </button>
+                </div>
+                <div class="add-page__featured-preview-wrap" id="add-page-featured-preview-wrap" hidden>
+                  <img
+                    class="add-page__featured-preview-img"
+                    id="add-page-featured-preview-img"
+                    src=""
+                    alt=""
+                  />
+                </div>
                 <div class="add-page__dropzone" id="add-page-featured-drop">
                   <input
                     type="file"
@@ -202,6 +218,7 @@
                   <span class="add-page__dropzone-hint">Recommended 1200 × 630px</span>
                 </div>
                 <input type="hidden" id="add-page-featured-url" name="featuredUrl" value="" />
+                <input type="hidden" id="add-page-featured-media-id" value="" autocomplete="off" />
               </div>
 
               <div class="add-page__upload-block">
@@ -322,6 +339,51 @@
           </section>
         </div>
       </form>
+    </div>
+
+    <div
+      id="add-page-media-picker"
+      class="add-page-media-picker"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="add-page-media-picker__backdrop" data-picker-close tabindex="-1"></div>
+      <div
+        class="add-page-media-picker__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-page-picker-title"
+      >
+        <div class="add-page-media-picker__header">
+          <h2 class="add-page-media-picker__title" id="add-page-picker-title">Media library</h2>
+          <button
+            type="button"
+            class="add-page-media-picker__close"
+            id="add-page-picker-close"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div class="add-page-media-picker__toolbar">
+          <button type="button" class="add-page__btn add-page__btn--ghost" id="add-page-picker-upload-btn">
+            Upload new image
+          </button>
+          <input type="file" id="add-page-picker-file" accept="image/*" hidden />
+        </div>
+        <div class="add-page-media-picker__scroll">
+          <div class="add-page-media-picker__empty" id="add-page-picker-empty" hidden>
+            No images yet — upload one or use Media library page.
+          </div>
+          <div class="add-page-media-picker__grid" id="add-page-picker-grid"></div>
+        </div>
+        <div class="add-page-media-picker__footer">
+          <button type="button" class="add-page__btn add-page__btn--ghost" data-picker-close>Cancel</button>
+          <button type="button" class="add-page__btn add-page__btn--primary" id="add-page-picker-use" disabled>
+            Use image
+          </button>
+        </div>
+      </div>
     </div>
 
     <div id="nav-overlay-container"></div>

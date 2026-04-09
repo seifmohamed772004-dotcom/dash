@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ &amp; Privacy — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --faq-bg: #0d0d0d;
+        --faq-surface: #141414;
+        --faq-accent: #5be7c4;
+        --faq-text: #ededed;
+        --faq-muted: #a1a1a1;
+        --faq-border: rgba(255, 255, 255, 0.1);
+        --faq-danger: #c45c5c;
+        --faq-radius: 12px;
+        --faq-radius-sm: 4px;
+        --faq-t: 0.25s ease;
+        --faq-topbar: 56px;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body.faq-page {
+        margin: 0;
+        min-height: 100%;
+        min-height: 100dvh;
+        font-family: "Unbounded", system-ui, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--faq-text);
+        background: var(--faq-bg);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .faq-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        height: var(--faq-topbar);
+        padding-inline: 1.25rem;
+        border-bottom: 1px solid var(--faq-border);
+        background: rgba(13, 13, 13, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .faq-topbar__brand {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color var(--faq-t);
+      }
+
+      .faq-topbar__brand:hover {
+        color: var(--faq-accent);
+      }
+
+      .faq-topbar__burger {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border: none;
+        border-radius: var(--faq-radius-sm);
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        transition: background var(--faq-t), color var(--faq-t);
+      }
+
+      .faq-topbar__burger:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--faq-accent);
+      }
+
+      .faq-topbar__burger-line {
+        display: block;
+        height: 2px;
+        width: 1.35rem;
+        margin-inline: auto;
+        background: currentColor;
+        border-radius: 1px;
+      }
+
+      .faq-shell {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(220px, 280px) 1fr;
+        gap: 0;
+        max-width: 1100px;
+        width: 100%;
+        margin-inline: auto;
+        min-height: 0;
+      }
+
+      .faq-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem 1rem 2rem 1.25rem;
+        border-inline-end: 1px solid var(--faq-border);
+        background: rgba(0, 0, 0, 0.2);
+      }
+
+      .faq-sidebar__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+
+      .faq-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 0.85rem;
+        border: 1px solid transparent;
+        border-radius: var(--faq-radius-sm);
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform var(--faq-t), background var(--faq-t), color var(--faq-t), border-color var(--faq-t),
+          box-shadow var(--faq-t);
+      }
+
+      .faq-btn:hover {
+        transform: scale(1.02);
+      }
+
+      .faq-btn:active {
+        transform: scale(0.98);
+      }
+
+      .faq-btn--primary {
+        color: #0a0a0a;
+        background: var(--faq-accent);
+        border-color: var(--faq-accent);
+      }
+
+      .faq-btn--primary:hover {
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.35);
+      }
+
+      .faq-btn--ghost {
+        color: var(--faq-text);
+        background: transparent;
+        border-color: var(--faq-border);
+      }
+
+      .faq-btn--ghost:hover {
+        border-color: var(--faq-accent);
+        color: var(--faq-accent);
+      }
+
+      .faq-btn--danger {
+        color: #ffb4b4;
+        background: rgba(196, 92, 92, 0.12);
+        border-color: rgba(196, 92, 92, 0.45);
+      }
+
+      .faq-toc {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .faq-toc__label {
+        margin: 0 0 0.35rem;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--faq-muted);
+      }
+
+      .faq-toc__link {
+        display: block;
+        padding: 0.4rem 0.5rem;
+        border-radius: var(--faq-radius-sm);
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--faq-muted);
+        text-decoration: none;
+        transition: color var(--faq-t), background var(--faq-t);
+      }
+
+      .faq-toc__link:hover {
+        color: var(--faq-accent);
+        background: rgba(91, 231, 196, 0.08);
+      }
+
+      .faq-main {
+        padding: 1.25rem clamp(1rem, 3vw, 2rem) 3rem;
+        min-width: 0;
+      }
+
+      .faq-main__title {
+        margin: 0 0 1rem;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--faq-text);
+      }
+
+      .faq-intro {
+        margin: 0 0 0.25rem;
+        font-size: 0.95rem;
+        color: var(--faq-muted);
+        line-height: 1.65;
+      }
+
+      .faq-intro--view {
+        white-space: pre-wrap;
+      }
+
+      .faq-intro--edit {
+        width: 100%;
+        min-height: 100px;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid var(--faq-border);
+        border-radius: var(--faq-radius-sm);
+        background: #0a0a0a;
+        color: var(--faq-text);
+        font-family: inherit;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        resize: vertical;
+        transition: border-color var(--faq-t), box-shadow var(--faq-t);
+      }
+
+      .faq-intro--edit:focus {
+        outline: none;
+        border-color: var(--faq-accent);
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.12);
+      }
+
+      .faq-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-top: 2rem;
+      }
+
+      .faq-section {
+        border-block-end: 1px solid var(--faq-border);
+        padding-block: 1.5rem;
+        scroll-margin-top: calc(var(--faq-topbar) + 12px);
+      }
+
+      .faq-section:first-of-type {
+        border-top: 1px solid var(--faq-border);
+      }
+
+      .faq-section__title {
+        margin: 0 0 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--faq-accent);
+      }
+
+      .faq-section__title-input {
+        width: 100%;
+        padding: 0.5rem 0.65rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid var(--faq-border);
+        border-radius: var(--faq-radius-sm);
+        background: #0a0a0a;
+        color: var(--faq-text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        transition: border-color var(--faq-t), box-shadow var(--faq-t);
+      }
+
+      .faq-section__title-input:focus {
+        outline: none;
+        border-color: var(--faq-accent);
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.12);
+      }
+
+      .faq-section__body {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--faq-text);
+        line-height: 1.65;
+      }
+
+      .faq-section__body--view {
+        white-space: pre-wrap;
+      }
+
+      .faq-section__textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid var(--faq-border);
+        border-radius: var(--faq-radius-sm);
+        background: #0a0a0a;
+        color: var(--faq-text);
+        font-family: inherit;
+        font-size: 0.88rem;
+        line-height: 1.55;
+        resize: vertical;
+        transition: border-color var(--faq-t), box-shadow var(--faq-t);
+      }
+
+      .faq-section__textarea:focus {
+        outline: none;
+        border-color: var(--faq-accent);
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.12);
+      }
+
+      .faq-section__delete {
+        margin-top: 0.75rem;
+      }
+
+      .faq-add-section {
+        margin-top: 1.5rem;
+      }
+
+      .faq-toast {
+        position: fixed;
+        inset-inline-end: 1rem;
+        inset-block-end: 1rem;
+        z-index: 300;
+        padding: 0.65rem 1rem;
+        border-radius: var(--faq-radius-sm);
+        background: #1e1e1e;
+        border: 1px solid var(--faq-border);
+        color: var(--faq-text);
+        font-size: 0.78rem;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+
+      .faq-toast.is-show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .faq-overlay-nav {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--faq-t), visibility var(--faq-t);
+      }
+
+      .faq-overlay-nav.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .faq-overlay-nav__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .faq-overlay-nav__panel {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: min(300px, 100%);
+        padding: 1.25rem;
+        border-radius: var(--faq-radius);
+        background: #121212;
+        border: 1px solid var(--faq-border);
+      }
+
+      .faq-overlay-nav__close {
+        align-self: flex-end;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--faq-border);
+        border-radius: var(--faq-radius-sm);
+        background: transparent;
+        color: var(--faq-text);
+        font-family: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+
+      .faq-overlay-nav__link {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--faq-radius-sm);
+        color: var(--faq-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: color var(--faq-t), background var(--faq-t);
+      }
+
+      .faq-overlay-nav__link:hover {
+        color: var(--faq-accent);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      @media (max-width: 768px) {
+        .faq-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .faq-sidebar {
+          border-inline-end: none;
+          border-block-end: 1px solid var(--faq-border);
+          padding-inline: 1.25rem;
+        }
+
+        .faq-toc {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+
+        .faq-toc__link {
+          flex: 1 1 auto;
+          min-width: min(140px, 100%);
+        }
+      }
+    </style>
+  </head>
+  <body class="faq-page">
+    <header class="faq-topbar">
+      <a href="overview.html" class="faq-topbar__brand">CREESTUDIOS</a>
+      <button
+        type="button"
+        class="faq-topbar__burger"
+        id="faq-burger"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="faq-nav-overlay"
+      >
+        <span class="faq-topbar__burger-line" aria-hidden="true"></span>
+        <span class="faq-topbar__burger-line" aria-hidden="true"></span>
+        <span class="faq-topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <div class="faq-shell">
+      <aside class="faq-sidebar">
+        <div class="faq-sidebar__actions">
+          <button type="button" class="faq-btn faq-btn--ghost" id="faq-btn-edit">Edit FAQ</button>
+          <button type="button" class="faq-btn faq-btn--primary" id="faq-btn-save" hidden>Save changes</button>
+          <button type="button" class="faq-btn faq-btn--ghost" id="faq-btn-cancel" hidden>Cancel</button>
+        </div>
+        <nav class="faq-toc" id="faq-toc" aria-label="Table of contents"></nav>
+      </aside>
+
+      <main class="faq-main">
+        <h1 class="faq-main__title">FAQ</h1>
+        <div id="faq-content"></div>
+      </main>
+    </div>
+
+    <div id="faq-nav-overlay" class="faq-overlay-nav" hidden aria-hidden="true">
+      <div class="faq-overlay-nav__backdrop" data-faq-close-nav></div>
+      <div class="faq-overlay-nav__panel">
+        <button type="button" class="faq-overlay-nav__close" data-faq-close-nav>Close</button>
+        <a href="overview.html" class="faq-overlay-nav__link">Overview</a>
+        <a href="posts.html" class="faq-overlay-nav__link">Posts</a>
+        <a href="faq.html" class="faq-overlay-nav__link">FAQ</a>
+        <a href="settings.html" class="faq-overlay-nav__link">Settings</a>
+      </div>
+    </div>
+
+    <div id="faq-toast" class="faq-toast" role="status" aria-live="polite"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var STORAGE_KEY = "dashboard_faq";
+
+        var DEFAULT_FAQ = {
+          intro:
+            "This Privacy Policy describes how we collect, use, and protect your information when you use our dashboard and related services.",
+          sections: [
+            {
+              id: "1",
+              title: "01. INFORMATION WE COLLECT",
+              content:
+                "We collect information you provide directly (such as account details), usage data, and technical information needed to operate the service securely.",
+            },
+            {
+              id: "2",
+              title: "02. HOW WE USE YOUR INFORMATION",
+              content:
+                "We use the information to provide and improve our services, communicate with you, ensure security, and comply with legal obligations.",
+            },
+          ],
+        };
+
+        var isEditMode = false;
+        var snapshot = null;
+
+        function newSectionId() {
+          return "s_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+        }
+
+        function loadFAQ() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) {
+              saveFAQ(JSON.parse(JSON.stringify(DEFAULT_FAQ)));
+              return JSON.parse(JSON.stringify(DEFAULT_FAQ));
+            }
+            var parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== "object") return JSON.parse(JSON.stringify(DEFAULT_FAQ));
+            if (!Array.isArray(parsed.sections)) parsed.sections = [];
+            if (typeof parsed.intro !== "string") parsed.intro = DEFAULT_FAQ.intro;
+            return parsed;
+          } catch (e) {
+            return JSON.parse(JSON.stringify(DEFAULT_FAQ));
+          }
+        }
+
+        function saveFAQ(data) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function getSectionAnchorId(id) {
+          return "faq-section-" + id;
+        }
+
+        function generateTOC(sections) {
+          var nav = document.getElementById("faq-toc");
+          if (!nav) return;
+          nav.innerHTML = "";
+          var label = document.createElement("p");
+          label.className = "faq-toc__label";
+          label.textContent = "Contents";
+          nav.appendChild(label);
+          sections.forEach(function (sec) {
+            var a = document.createElement("a");
+            a.className = "faq-toc__link";
+            a.href = "#" + getSectionAnchorId(sec.id);
+            a.textContent = sec.title || "Section";
+            a.addEventListener("click", function (e) {
+              e.preventDefault();
+              var el = document.getElementById(getSectionAnchorId(sec.id));
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            nav.appendChild(a);
+          });
+        }
+
+        function padNum(n) {
+          return n < 10 ? "0" + n : String(n);
+        }
+
+        function nextNumberedTitle(index) {
+          return padNum(index + 1) + ". NEW SECTION";
+        }
+
+        function renderViewMode() {
+          var data = loadFAQ();
+          var wrap = document.getElementById("faq-content");
+          if (!wrap) return;
+          wrap.innerHTML = "";
+
+          var intro = document.createElement("p");
+          intro.className = "faq-intro faq-intro--view";
+          intro.textContent = data.intro || "";
+          wrap.appendChild(intro);
+
+          var list = document.createElement("div");
+          list.className = "faq-sections";
+          data.sections.forEach(function (sec) {
+            var block = document.createElement("section");
+            block.className = "faq-section";
+            block.id = getSectionAnchorId(sec.id);
+            var h = document.createElement("h2");
+            h.className = "faq-section__title";
+            h.textContent = sec.title || "";
+            var p = document.createElement("p");
+            p.className = "faq-section__body faq-section__body--view";
+            p.textContent = sec.content || "";
+            block.appendChild(h);
+            block.appendChild(p);
+            list.appendChild(block);
+          });
+          wrap.appendChild(list);
+
+          generateTOC(data.sections);
+        }
+
+        function collectEditFormData() {
+          var introEl = document.getElementById("faq-edit-intro");
+          var intro = introEl ? introEl.value : "";
+          var sections = [];
+          document.querySelectorAll("[data-faq-section]").forEach(function (row) {
+            var id = row.getAttribute("data-faq-section");
+            var titleIn = row.querySelector(".faq-section__title-input");
+            var bodyIn = row.querySelector(".faq-section__textarea");
+            sections.push({
+              id: id,
+              title: titleIn ? titleIn.value.trim() : "",
+              content: bodyIn ? bodyIn.value : "",
+            });
+          });
+          return { intro: intro, sections: sections };
+        }
+
+        function renderEditMode() {
+          var data = loadFAQ();
+          var wrap = document.getElementById("faq-content");
+          if (!wrap) return;
+          wrap.innerHTML = "";
+
+          var intro = document.createElement("textarea");
+          intro.id = "faq-edit-intro";
+          intro.className = "faq-intro faq-intro--edit";
+          intro.rows = 5;
+          intro.placeholder = "Intro paragraph…";
+          intro.value = data.intro || "";
+          wrap.appendChild(intro);
+
+          var list = document.createElement("div");
+          list.className = "faq-sections";
+          data.sections.forEach(function (sec) {
+            list.appendChild(buildEditSection(sec));
+          });
+          wrap.appendChild(list);
+
+          var addWrap = document.createElement("div");
+          addWrap.className = "faq-add-section";
+          var addBtn = document.createElement("button");
+          addBtn.type = "button";
+          addBtn.className = "faq-btn faq-btn--ghost";
+          addBtn.textContent = "+ Add section";
+          addBtn.addEventListener("click", function () {
+            addSection();
+          });
+          addWrap.appendChild(addBtn);
+          wrap.appendChild(addWrap);
+
+          generateTOC(data.sections);
+        }
+
+        function buildEditSection(sec) {
+          var block = document.createElement("div");
+          block.className = "faq-section";
+          block.setAttribute("data-faq-section", sec.id);
+          block.id = getSectionAnchorId(sec.id);
+
+          var titleIn = document.createElement("input");
+          titleIn.type = "text";
+          titleIn.className = "faq-section__title-input";
+          titleIn.placeholder = "Section title";
+          titleIn.value = sec.title || "";
+
+          var bodyIn = document.createElement("textarea");
+          bodyIn.className = "faq-section__textarea";
+          bodyIn.rows = 6;
+          bodyIn.placeholder = "Section content…";
+          bodyIn.value = sec.content || "";
+
+          var delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "faq-btn faq-btn--danger faq-section__delete";
+          delBtn.textContent = "Delete section";
+          delBtn.addEventListener("click", function () {
+            deleteSection(sec.id);
+          });
+
+          block.appendChild(titleIn);
+          block.appendChild(bodyIn);
+          block.appendChild(delBtn);
+          return block;
+        }
+
+        function addSection() {
+          var data = collectEditFormData();
+          var n = data.sections.length;
+          data.sections.push({
+            id: newSectionId(),
+            title: nextNumberedTitle(n),
+            content: "",
+          });
+          saveFAQ(data);
+          renderEditMode();
+        }
+
+        function deleteSection(id) {
+          if (!window.confirm("Delete this section?")) return;
+          var data = collectEditFormData();
+          data.sections = data.sections.filter(function (s) {
+            return s.id !== id;
+          });
+          saveFAQ(data);
+          renderEditMode();
+        }
+
+        function setModeButtons() {
+          var editBtn = document.getElementById("faq-btn-edit");
+          var saveBtn = document.getElementById("faq-btn-save");
+          var cancelBtn = document.getElementById("faq-btn-cancel");
+          if (editBtn) editBtn.hidden = isEditMode;
+          if (saveBtn) saveBtn.hidden = !isEditMode;
+          if (cancelBtn) cancelBtn.hidden = !isEditMode;
+        }
+
+        function enterEditMode() {
+          snapshot = JSON.stringify(loadFAQ());
+          isEditMode = true;
+          setModeButtons();
+          renderEditMode();
+        }
+
+        function exitEditMode() {
+          isEditMode = false;
+          setModeButtons();
+          renderViewMode();
+        }
+
+        function cancelEdit() {
+          if (snapshot) {
+            try {
+              saveFAQ(JSON.parse(snapshot));
+            } catch (e) {}
+          }
+          isEditMode = false;
+          setModeButtons();
+          renderViewMode();
+        }
+
+        function saveChanges() {
+          var data = collectEditFormData();
+          saveFAQ(data);
+          isEditMode = false;
+          setModeButtons();
+          renderViewMode();
+          showToast("Changes saved");
+        }
+
+        var toastTimer;
+        function showToast(msg) {
+          var t = document.getElementById("faq-toast");
+          if (!t) return;
+          t.textContent = msg;
+          t.classList.add("is-show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () {
+            t.classList.remove("is-show");
+          }, 2200);
+        }
+
+        document.getElementById("faq-btn-edit").addEventListener("click", enterEditMode);
+        document.getElementById("faq-btn-save").addEventListener("click", saveChanges);
+        document.getElementById("faq-btn-cancel").addEventListener("click", cancelEdit);
+
+        var nav = document.getElementById("faq-nav-overlay");
+        var burger = document.getElementById("faq-burger");
+        function openNav() {
+          nav.removeAttribute("hidden");
+          nav.setAttribute("aria-hidden", "false");
+          nav.classList.add("is-open");
+          if (burger) burger.setAttribute("aria-expanded", "true");
+          document.body.style.overflow = "hidden";
+        }
+        function closeNav() {
+          nav.classList.remove("is-open");
+          nav.setAttribute("aria-hidden", "true");
+          if (burger) burger.setAttribute("aria-expanded", "false");
+          document.body.style.overflow = "";
+          setTimeout(function () {
+            nav.setAttribute("hidden", "");
+          }, 250);
+        }
+        if (burger) {
+          burger.addEventListener("click", function () {
+            if (nav.classList.contains("is-open")) closeNav();
+            else openNav();
+          });
+        }
+        document.querySelectorAll("[data-faq-close-nav]").forEach(function (el) {
+          el.addEventListener("click", closeNav);
+        });
+
+        renderViewMode();
+        setModeButtons();
+
+        window.FAQAdmin = {
+          loadFAQ: loadFAQ,
+          saveFAQ: saveFAQ,
+          renderViewMode: renderViewMode,
+          renderEditMode: renderEditMode,
+          addSection: addSection,
+          deleteSection: deleteSection,
+          generateTOC: generateTOC,
+        };
+      })();
+    </script>
+  </body>
+</html>
