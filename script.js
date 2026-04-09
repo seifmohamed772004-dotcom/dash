@@ -222,6 +222,21 @@
       });
     }
 
+    function startLoginPreloaderAndRedirect() {
+      var preloader = document.getElementById("login-preloader");
+      if (!preloader) {
+        window.location.href = "overview.html";
+        return;
+      }
+      preloader.hidden = false;
+      requestAnimationFrame(function () {
+        preloader.classList.add("is-active");
+      });
+      setTimeout(function () {
+        window.location.href = "overview.html";
+      }, 500);
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       hideFormError();
@@ -266,7 +281,7 @@
         return;
       }
 
-      window.location.href = "overview.html";
+      startLoginPreloaderAndRedirect();
     });
   }
 
