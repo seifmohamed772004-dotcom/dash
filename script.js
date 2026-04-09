@@ -2035,6 +2035,61 @@
     }
   }
 
+  function ensureReportsMinimumCoverage() {
+    var users = getData("users");
+    if (!users || users.length < 2) return;
+    var list = getData("reports");
+    if (!Array.isArray(list)) list = [];
+    var targetPerSection = 10;
+    var reasons = ["Bullying", "Harassment", "Spam", "Scam", "Fake Account", "Hate Speech"];
+    var now = Date.now();
+
+    function pickPair(seed) {
+      var a = users[seed % users.length];
+      var b = users[(seed + 1) % users.length];
+      if (a.id === b.id) b = users[(seed + 2) % users.length];
+      return { reporter: a, reported: b };
+    }
+
+    function addGenerated(hoursAgo, seed) {
+      var pair = pickPair(seed);
+      var created = new Date(now - hoursAgo * 60 * 60 * 1000).toISOString();
+      list.push({
+        id: reportNewId(),
+        reporterId: pair.reporter.id,
+        reportedId: pair.reported.id,
+        reporterName: pair.reporter.name,
+        reportedName: pair.reported.name,
+        reason: reasons[seed % reasons.length],
+        date: created.slice(0, 10),
+        createdAt: created,
+        status: seed % 4 === 0 ? "resolved" : "active",
+      });
+    }
+
+    var sections = [
+      { key: "24h", minH: 1, maxH: 23 },
+      { key: "7d", minH: 25, maxH: 160 },
+      { key: "30d", minH: 170, maxH: 700 },
+    ];
+
+    var seed = list.length + 11;
+    sections.forEach(function (sec) {
+      var current = filterReportsForTimeSection(list, sec.key, false).length;
+      while (current < targetPerSection) {
+        var span = sec.maxH - sec.minH + 1;
+        var hoursAgo = sec.minH + (seed % span);
+        addGenerated(hoursAgo, seed);
+        seed += 1;
+        current += 1;
+      }
+    });
+
+    try {
+      saveData("reports", list);
+    } catch (e) {}
+  }
+
   function deleteReportById(reportId) {
     var list = getData("reports");
     var next = list.filter(function (r) {
@@ -2149,6 +2204,7 @@
     if (!document.getElementById("reports-strip-24h")) return;
 
     ensureDummyReports();
+    ensureReportsMinimumCoverage();
     var toggle = document.getElementById("reports-banned-toggle");
     if (toggle) {
       toggle.setAttribute("aria-pressed", reportsShowBannedOnly ? "true" : "false");
