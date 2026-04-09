@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Collection — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --ml-bg: #0d0d0d;
+        --ml-surface: #141414;
+        --ml-accent: #5be7c4;
+        --ml-text: #ededed;
+        --ml-muted: #a1a1a1;
+        --ml-border: rgba(255, 255, 255, 0.1);
+        --ml-unused: #d4c4b0;
+        --ml-danger: #c45c5c;
+        --ml-radius: 16px;
+        --ml-radius-sm: 4px;
+        --ml-t: 0.25s ease;
+        --ml-topbar: 56px;
+      }
+
+      html {
+        height: 100%;
+      }
+
+      body.ml-page {
+        margin: 0;
+        min-height: 100%;
+        min-height: 100dvh;
+        font-family: "Unbounded", system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--ml-text);
+        background: var(--ml-bg);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ml-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        height: var(--ml-topbar);
+        padding-inline: 1.25rem;
+        border-bottom: 1px solid var(--ml-border);
+        background: rgba(13, 13, 13, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .ml-topbar__brand {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color var(--ml-t);
+      }
+
+      .ml-topbar__brand:hover {
+        color: var(--ml-accent);
+      }
+
+      .ml-topbar__burger {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border: none;
+        border-radius: var(--ml-radius-sm);
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        transition: background var(--ml-t), color var(--ml-t);
+      }
+
+      .ml-topbar__burger:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--ml-accent);
+      }
+
+      .ml-topbar__burger-line {
+        display: block;
+        height: 2px;
+        width: 1.35rem;
+        margin-inline: auto;
+        background: currentColor;
+        border-radius: 1px;
+      }
+
+      .ml-wrap {
+        flex: 1;
+        width: 100%;
+        max-width: 1280px;
+        margin-inline: auto;
+        padding: 1.25rem clamp(0.75rem, 2vw, 1.5rem) 2.5rem;
+      }
+
+      .ml-head {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .ml-head__titles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .ml-title {
+        margin: 0;
+        font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        line-height: 1.15;
+      }
+
+      .ml-title__muted {
+        color: var(--ml-text);
+      }
+
+      .ml-title__accent {
+        color: var(--ml-accent);
+      }
+
+      .ml-subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--ml-muted);
+      }
+
+      .ml-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid transparent;
+        border-radius: var(--ml-radius-sm);
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform var(--ml-t), background var(--ml-t), color var(--ml-t), box-shadow var(--ml-t);
+      }
+
+      .ml-btn:hover {
+        transform: scale(1.02);
+      }
+
+      .ml-btn:active {
+        transform: scale(0.98);
+      }
+
+      .ml-btn--primary {
+        color: #0a0a0a;
+        background: var(--ml-accent);
+        border-color: var(--ml-accent);
+      }
+
+      .ml-btn--primary:hover {
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.35);
+      }
+
+      .ml-btn--ghost {
+        color: var(--ml-text);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--ml-border);
+      }
+
+      .ml-btn--ghost:hover {
+        border-color: var(--ml-accent);
+        color: var(--ml-accent);
+      }
+
+      .ml-btn--danger {
+        color: #ffb4b4;
+        background: rgba(196, 92, 92, 0.15);
+        border-color: rgba(196, 92, 92, 0.45);
+      }
+
+      .ml-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: clamp(0.85rem, 2vw, 1.35rem);
+        align-items: start;
+      }
+
+      .ml-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--ml-border);
+        border-radius: var(--ml-radius);
+        background: var(--ml-surface);
+        overflow: hidden;
+        transition: border-color var(--ml-t), box-shadow var(--ml-t), transform var(--ml-t);
+      }
+
+      .ml-card:hover {
+        border-color: rgba(91, 231, 196, 0.25);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+        transform: translateY(-2px);
+      }
+
+      .ml-card__thumb {
+        position: relative;
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+
+      .ml-card__thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.35s ease;
+      }
+
+      .ml-card:hover .ml-card__thumb img {
+        transform: scale(1.06);
+      }
+
+      .ml-badge {
+        position: absolute;
+        top: 0.65rem;
+        left: 0.65rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--ml-radius-sm);
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        z-index: 2;
+      }
+
+      .ml-badge--used {
+        background: var(--ml-accent);
+        color: #0a0a0a;
+      }
+
+      .ml-badge--unused {
+        background: var(--ml-unused);
+        color: #1a1510;
+      }
+
+      .ml-card__actions {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-end;
+        gap: 0.4rem;
+        padding: 0.65rem;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent 55%);
+        opacity: 0;
+        transition: opacity var(--ml-t);
+        z-index: 3;
+      }
+
+      .ml-card:hover .ml-card__actions {
+        opacity: 1;
+      }
+
+      .ml-card__actions .ml-btn {
+        width: 100%;
+        font-size: 0.62rem;
+        padding: 0.4rem 0.5rem;
+      }
+
+      .ml-card__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        padding: 0.85rem 1rem 1rem;
+      }
+
+      .ml-card__title {
+        margin: 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ml-text);
+        line-height: 1.3;
+      }
+
+      .ml-card__desc {
+        margin: 0;
+        font-size: 0.72rem;
+        color: var(--ml-accent);
+        line-height: 1.4;
+      }
+
+      .ml-card__meta {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 0.35rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid var(--ml-border);
+        font-size: 0.65rem;
+        color: var(--ml-muted);
+      }
+
+      .ml-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 1.5rem;
+        border: 1px dashed var(--ml-border);
+        border-radius: var(--ml-radius);
+        color: var(--ml-muted);
+        font-size: 0.9rem;
+      }
+
+      .ml-modal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--ml-t), visibility var(--ml-t);
+      }
+
+      .ml-modal-bg.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .ml-modal {
+        width: min(420px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 1.25rem 1.35rem;
+        border: 1px solid var(--ml-border);
+        border-radius: var(--ml-radius);
+        background: #121212;
+        transform: scale(0.96);
+        transition: transform var(--ml-t);
+      }
+
+      .ml-modal-bg.is-open .ml-modal {
+        transform: scale(1);
+      }
+
+      .ml-delete-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 220;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity var(--ml-t), visibility var(--ml-t);
+      }
+
+      .ml-delete-overlay.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      .ml-delete-overlay__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        cursor: pointer;
+      }
+
+      .ml-delete-overlay__panel {
+        position: relative;
+        z-index: 1;
+        width: min(400px, 100%);
+        padding: 1.25rem 1.35rem;
+        border: 1px solid rgba(196, 92, 92, 0.35);
+        border-radius: var(--ml-radius);
+        background: #161212;
+        transform: scale(0.96);
+        transition: transform var(--ml-t);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+      }
+
+      .ml-delete-overlay.is-open .ml-delete-overlay__panel {
+        transform: scale(1);
+      }
+
+      .ml-delete-overlay__title {
+        margin: 0 0 0.65rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ml-text);
+      }
+
+      .ml-delete-overlay__text {
+        margin: 0 0 1.1rem;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--ml-muted);
+      }
+
+      .ml-modal__title {
+        margin: 0 0 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ml-text);
+      }
+
+      .ml-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .ml-field__label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ml-muted);
+      }
+
+      .ml-field__optional {
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0.02em;
+        opacity: 0.55;
+      }
+
+      .ml-input {
+        width: 100%;
+        padding: 0.5rem 0.6rem;
+        border: 1px solid var(--ml-border);
+        border-radius: var(--ml-radius-sm);
+        background: #0a0a0a;
+        color: var(--ml-text);
+        font-family: inherit;
+        font-size: 0.82rem;
+        outline: none;
+        transition: border-color var(--ml-t), box-shadow var(--ml-t);
+      }
+
+      .ml-input:focus {
+        border-color: var(--ml-accent);
+        box-shadow: 0 0 0 2px rgba(91, 231, 196, 0.12);
+      }
+
+      .ml-file {
+        padding: 0.45rem;
+        cursor: pointer;
+      }
+
+      .ml-field__error {
+        margin: 0;
+        font-size: 0.7rem;
+        color: var(--ml-danger);
+        min-height: 1em;
+      }
+
+      .ml-modal__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .ml-toast {
+        position: fixed;
+        inset-inline-end: 1rem;
+        inset-block-end: 1rem;
+        z-index: 300;
+        padding: 0.65rem 1rem;
+        border-radius: var(--ml-radius-sm);
+        background: #1e1e1e;
+        border: 1px solid var(--ml-border);
+        color: var(--ml-text);
+        font-size: 0.78rem;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+
+      .ml-toast.is-show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .ml-overlay-nav {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--ml-t), visibility var(--ml-t);
+      }
+
+      .ml-overlay-nav.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .ml-overlay-nav__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .ml-overlay-nav__panel {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: min(300px, 100%);
+        padding: 1.25rem;
+        border-radius: var(--ml-radius);
+        background: #121212;
+        border: 1px solid var(--ml-border);
+      }
+
+      .ml-overlay-nav__close {
+        align-self: flex-end;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--ml-border);
+        border-radius: var(--ml-radius-sm);
+        background: transparent;
+        color: var(--ml-text);
+        font-family: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+
+      .ml-overlay-nav__link {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--ml-radius-sm);
+        color: var(--ml-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: color var(--ml-t), background var(--ml-t);
+      }
+
+      .ml-overlay-nav__link:hover {
+        color: var(--ml-accent);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      @media (max-width: 1100px) {
+        .ml-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 800px) {
+        .ml-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .ml-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .ml-head {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body class="ml-page">
+    <header class="ml-topbar">
+      <a href="overview.html" class="ml-topbar__brand">CREESTUDIOS</a>
+      <button
+        type="button"
+        class="ml-topbar__burger"
+        id="ml-burger"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="ml-nav-overlay"
+      >
+        <span class="ml-topbar__burger-line" aria-hidden="true"></span>
+        <span class="ml-topbar__burger-line" aria-hidden="true"></span>
+        <span class="ml-topbar__burger-line" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <div class="ml-wrap">
+      <div class="ml-head">
+        <div class="ml-head__titles">
+          <h1 class="ml-title">
+            <span class="ml-title__muted">Media</span> <span class="ml-title__accent">Collection</span>
+          </h1>
+          <p class="ml-subtitle" id="ml-subtitle">0 total items</p>
+        </div>
+        <button type="button" class="ml-btn ml-btn--primary" id="ml-btn-upload">+ Upload image</button>
+      </div>
+
+      <div class="ml-grid" id="ml-grid" aria-live="polite"></div>
+    </div>
+
+    <div id="ml-nav-overlay" class="ml-overlay-nav" hidden aria-hidden="true">
+      <div class="ml-overlay-nav__backdrop" data-ml-close-nav></div>
+      <div class="ml-overlay-nav__panel">
+        <button type="button" class="ml-overlay-nav__close" data-ml-close-nav>Close</button>
+        <a href="overview.html" class="ml-overlay-nav__link">Overview</a>
+        <a href="posts.html" class="ml-overlay-nav__link">Posts</a>
+        <a href="media.html" class="ml-overlay-nav__link">Media library</a>
+        <a href="settings.html" class="ml-overlay-nav__link">Settings</a>
+      </div>
+    </div>
+
+    <div id="ml-modal" class="ml-modal-bg" aria-hidden="true">
+      <div class="ml-modal" role="dialog" aria-modal="true" aria-labelledby="ml-modal-title">
+        <h2 class="ml-modal__title" id="ml-modal-title">Upload image</h2>
+        <form id="ml-form" novalidate>
+          <div class="ml-field">
+            <label class="ml-field__label" for="ml-file">Image file</label>
+            <input type="file" id="ml-file" class="ml-input ml-file" accept="image/*" required />
+            <p class="ml-field__error" id="ml-err-file"></p>
+          </div>
+          <div class="ml-field">
+            <label class="ml-field__label" for="ml-title">Title</label>
+            <input type="text" id="ml-title" class="ml-input" required autocomplete="off" placeholder="e.g. Conference room view" />
+            <p class="ml-field__error" id="ml-err-title"></p>
+          </div>
+          <div class="ml-field">
+            <label class="ml-field__label" for="ml-desc">Description <span class="ml-field__optional">(optional)</span></label>
+            <input type="text" id="ml-desc" class="ml-input" autocomplete="off" placeholder="e.g. Meeting spaces reimagined" />
+          </div>
+          <div class="ml-modal__actions">
+            <button type="button" class="ml-btn ml-btn--ghost" id="ml-btn-cancel">Cancel</button>
+            <button type="submit" class="ml-btn ml-btn--primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="ml-delete-overlay" class="ml-delete-overlay" aria-hidden="true">
+      <div class="ml-delete-overlay__backdrop" data-ml-delete-close tabindex="-1" aria-hidden="true"></div>
+      <div
+        class="ml-delete-overlay__panel"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="ml-delete-title"
+        aria-describedby="ml-delete-msg"
+      >
+        <h2 class="ml-delete-overlay__title" id="ml-delete-title">Delete image?</h2>
+        <p class="ml-delete-overlay__text" id="ml-delete-msg"></p>
+        <div class="ml-modal__actions">
+          <button type="button" class="ml-btn ml-btn--ghost" id="ml-delete-cancel">Cancel</button>
+          <button type="button" class="ml-btn ml-btn--danger" id="ml-delete-confirm">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="ml-toast" class="ml-toast" role="status" aria-live="polite"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var STORAGE_KEY = "dashboard_media";
+        var pendingDeleteId = null;
+
+        function newId() {
+          return "m_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+        }
+
+        function formatBytes(bytes) {
+          if (bytes < 1024) return Math.round(bytes) + " B";
+          if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+          return (bytes / 1048576).toFixed(1) + " MB";
+        }
+
+        function todayISO() {
+          var d = new Date();
+          var y = d.getFullYear();
+          var m = String(d.getMonth() + 1).padStart(2, "0");
+          var day = String(d.getDate()).padStart(2, "0");
+          return y + "-" + m + "-" + day;
+        }
+
+        function formatDisplayDate(iso) {
+          if (!iso) return "—";
+          var d = new Date(iso + "T12:00:00");
+          if (isNaN(d.getTime())) return iso;
+          return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+
+        function loadMedia() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            return [];
+          }
+        }
+
+        function saveMedia(list) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            return true;
+          } catch (e) {
+            window.alert("Storage full or unavailable. Try removing images or use smaller files.");
+            return false;
+          }
+        }
+
+        function updateSubtitle(count) {
+          var el = document.getElementById("ml-subtitle");
+          if (el) el.textContent = count + " total items";
+        }
+
+        function renderMedia() {
+          var list = loadMedia();
+          updateSubtitle(list.length);
+          var grid = document.getElementById("ml-grid");
+          if (!grid) return;
+          grid.innerHTML = "";
+
+          if (list.length === 0) {
+            var empty = document.createElement("div");
+            empty.className = "ml-empty";
+            empty.textContent = "No media yet — upload an image to get started.";
+            grid.appendChild(empty);
+            return;
+          }
+
+          list.forEach(function (item) {
+            var card = document.createElement("article");
+            card.className = "ml-card";
+            card.setAttribute("data-id", item.id);
+
+            var thumb = document.createElement("div");
+            thumb.className = "ml-card__thumb";
+            var img = document.createElement("img");
+            img.src = item.src;
+            img.alt = item.title || "";
+            img.loading = "lazy";
+            thumb.appendChild(img);
+
+            var badge = document.createElement("span");
+            badge.className = "ml-badge " + (item.used ? "ml-badge--used" : "ml-badge--unused");
+            badge.textContent = item.used ? "Used" : "Unused";
+            thumb.appendChild(badge);
+
+            var actions = document.createElement("div");
+            actions.className = "ml-card__actions";
+            var btnToggle = document.createElement("button");
+            btnToggle.type = "button";
+            btnToggle.className = "ml-btn ml-btn--ghost";
+            btnToggle.textContent = item.used ? "Mark unused" : "Mark used";
+            btnToggle.addEventListener("click", function () {
+              toggleUsed(item.id);
+            });
+            var btnDel = document.createElement("button");
+            btnDel.type = "button";
+            btnDel.className = "ml-btn ml-btn--danger";
+            btnDel.textContent = "Delete";
+            btnDel.addEventListener("click", function () {
+              openDeleteOverlay(item.id);
+            });
+            actions.appendChild(btnToggle);
+            actions.appendChild(btnDel);
+            thumb.appendChild(actions);
+
+            var body = document.createElement("div");
+            body.className = "ml-card__body";
+            var h = document.createElement("h2");
+            h.className = "ml-card__title";
+            h.textContent = item.title || "Untitled";
+            var desc = document.createElement("p");
+            desc.className = "ml-card__desc";
+            desc.textContent = item.description || "—";
+            var meta = document.createElement("div");
+            meta.className = "ml-card__meta";
+            var size = document.createElement("span");
+            size.textContent = item.size || "—";
+            var date = document.createElement("span");
+            date.textContent = formatDisplayDate(item.date);
+            meta.appendChild(size);
+            meta.appendChild(date);
+            body.appendChild(h);
+            body.appendChild(desc);
+            body.appendChild(meta);
+
+            card.appendChild(thumb);
+            card.appendChild(body);
+            grid.appendChild(card);
+          });
+        }
+
+        function uploadMedia(entry) {
+          var list = loadMedia();
+          list.unshift(entry);
+          if (!saveMedia(list)) return false;
+          renderMedia();
+          showToast("Image uploaded");
+          return true;
+        }
+
+        function toggleUsed(id) {
+          var list = loadMedia();
+          var i = list.findIndex(function (x) {
+            return x.id === id;
+          });
+          if (i === -1) return;
+          list[i].used = !list[i].used;
+          if (!saveMedia(list)) return;
+          renderMedia();
+          showToast("Updated");
+        }
+
+        function deleteMedia(id) {
+          var list = loadMedia().filter(function (x) {
+            return x.id !== id;
+          });
+          if (!saveMedia(list)) return false;
+          renderMedia();
+          showToast("Image removed");
+          return true;
+        }
+
+        function openDeleteOverlay(id) {
+          var item = loadMedia().find(function (x) {
+            return x.id === id;
+          });
+          if (!item) return;
+          pendingDeleteId = id;
+          var msg = document.getElementById("ml-delete-msg");
+          if (msg) {
+            msg.textContent =
+              'Are you sure you want to delete "' +
+              (item.title || "Untitled") +
+              '"? This action cannot be undone.';
+          }
+          var ov = document.getElementById("ml-delete-overlay");
+          if (!ov) return;
+          ov.classList.add("is-open");
+          ov.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+          setTimeout(function () {
+            var c = document.getElementById("ml-delete-confirm");
+            if (c) c.focus();
+          }, 0);
+        }
+
+        function closeDeleteOverlay() {
+          pendingDeleteId = null;
+          var ov = document.getElementById("ml-delete-overlay");
+          if (!ov) return;
+          ov.classList.remove("is-open");
+          ov.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }
+
+        function confirmPendingDelete() {
+          if (!pendingDeleteId) return;
+          var id = pendingDeleteId;
+          closeDeleteOverlay();
+          deleteMedia(id);
+        }
+
+        var toastTimer;
+        function showToast(msg) {
+          var t = document.getElementById("ml-toast");
+          if (!t) return;
+          t.textContent = msg;
+          t.classList.add("is-show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () {
+            t.classList.remove("is-show");
+          }, 2200);
+        }
+
+        function openModal() {
+          var m = document.getElementById("ml-modal");
+          m.classList.add("is-open");
+          m.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeModal() {
+          var m = document.getElementById("ml-modal");
+          m.classList.remove("is-open");
+          m.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+          document.getElementById("ml-form").reset();
+          document.getElementById("ml-err-file").textContent = "";
+          document.getElementById("ml-err-title").textContent = "";
+        }
+
+        document.getElementById("ml-btn-upload").addEventListener("click", openModal);
+        document.getElementById("ml-btn-cancel").addEventListener("click", closeModal);
+        document.getElementById("ml-modal").addEventListener("click", function (e) {
+          if (e.target.id === "ml-modal") closeModal();
+        });
+
+        document.getElementById("ml-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var fileInput = document.getElementById("ml-file");
+          var titleInput = document.getElementById("ml-title");
+          var descInput = document.getElementById("ml-desc");
+          var errFile = document.getElementById("ml-err-file");
+          var errTitle = document.getElementById("ml-err-title");
+          errFile.textContent = "";
+          errTitle.textContent = "";
+
+          var file = fileInput.files && fileInput.files[0];
+          if (!file) {
+            errFile.textContent = "Please choose an image file.";
+            return;
+          }
+          if (!file.type || file.type.indexOf("image/") !== 0) {
+            errFile.textContent = "Only image files are allowed.";
+            return;
+          }
+
+          var title = titleInput.value.trim();
+          if (!title) {
+            errTitle.textContent = "Title is required.";
+            return;
+          }
+
+          var reader = new FileReader();
+          reader.onload = function () {
+            var src = reader.result;
+            var entry = {
+              id: newId(),
+              src: src,
+              title: title,
+              description: (descInput.value || "").trim(),
+              size: formatBytes(file.size),
+              date: todayISO(),
+              used: false,
+            };
+            if (uploadMedia(entry)) closeModal();
+          };
+          reader.onerror = function () {
+            errFile.textContent = "Could not read file.";
+          };
+          reader.readAsDataURL(file);
+        });
+
+        var nav = document.getElementById("ml-nav-overlay");
+        var burger = document.getElementById("ml-burger");
+        function openNav() {
+          nav.removeAttribute("hidden");
+          nav.setAttribute("aria-hidden", "false");
+          nav.classList.add("is-open");
+          if (burger) burger.setAttribute("aria-expanded", "true");
+          document.body.style.overflow = "hidden";
+        }
+        function closeNav() {
+          nav.classList.remove("is-open");
+          nav.setAttribute("aria-hidden", "true");
+          if (burger) burger.setAttribute("aria-expanded", "false");
+          document.body.style.overflow = "";
+          setTimeout(function () {
+            nav.setAttribute("hidden", "");
+          }, 250);
+        }
+        if (burger) {
+          burger.addEventListener("click", function () {
+            if (nav.classList.contains("is-open")) closeNav();
+            else openNav();
+          });
+        }
+        document.querySelectorAll("[data-ml-close-nav]").forEach(function (el) {
+          el.addEventListener("click", closeNav);
+        });
+
+        document.getElementById("ml-delete-cancel").addEventListener("click", closeDeleteOverlay);
+        document.getElementById("ml-delete-confirm").addEventListener("click", confirmPendingDelete);
+        document.querySelectorAll("[data-ml-delete-close]").forEach(function (el) {
+          el.addEventListener("click", closeDeleteOverlay);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          var delOv = document.getElementById("ml-delete-overlay");
+          if (delOv && delOv.classList.contains("is-open")) {
+            e.preventDefault();
+            closeDeleteOverlay();
+          }
+        });
+
+        renderMedia();
+
+        window.MediaLibrary = {
+          loadMedia: loadMedia,
+          saveMedia: saveMedia,
+          renderMedia: renderMedia,
+          uploadMedia: uploadMedia,
+          deleteMedia: deleteMedia,
+          openDeleteOverlay: openDeleteOverlay,
+          toggleUsed: toggleUsed,
+        };
+      })();
+    </script>
+  </body>
+</html>
